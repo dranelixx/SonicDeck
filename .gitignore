@@ -2,6 +2,7 @@
 /src-tauri/target/
 /src-tauri/Cargo.lock
 /src-tauri/WixTools/
+/src-tauri/gen/
 
 # Node / Yarn
 node_modules/
