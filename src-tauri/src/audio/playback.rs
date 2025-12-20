@@ -89,6 +89,10 @@ fn write_audio_f32(
     let mut index = sample_index.lock().unwrap();
     let input_channels = audio_data.channels as usize;
     let max_frame = (audio_data.samples.len() / input_channels) as f64;
+    
+    // Apply square root volume curve with base attenuation
+    // Base multiplier of 0.2 for safe default volume (20% of full amplitude)
+    let scaled_volume = volume.sqrt() * 0.2;
 
     for frame in output.chunks_mut(output_channels) {
         if *index >= max_frame - 1.0 {
@@ -112,9 +116,9 @@ fn write_audio_f32(
                 // Linear interpolation: value = sample1 + (sample2 - sample1) * frac
                 let sample1 = audio_data.samples[idx1];
                 let sample2 = audio_data.samples[idx2];
-                *sample = (sample1 + (sample2 - sample1) * frac as f32) * volume;
+                *sample = (sample1 + (sample2 - sample1) * frac as f32) * scaled_volume;
             } else if idx1 < audio_data.samples.len() {
-                *sample = audio_data.samples[idx1] * volume;
+                *sample = audio_data.samples[idx1] * scaled_volume;
             } else {
                 *sample = 0.0;
             }
@@ -136,6 +140,10 @@ fn write_audio_i16(
     let mut index = sample_index.lock().unwrap();
     let input_channels = audio_data.channels as usize;
     let max_frame = (audio_data.samples.len() / input_channels) as f64;
+    
+    // Apply square root volume curve with base attenuation
+    // Base multiplier of 0.2 for safe default volume (20% of full amplitude)
+    let scaled_volume = volume.sqrt() * 0.2;
 
     for frame in output.chunks_mut(output_channels) {
         if *index >= max_frame - 1.0 {
@@ -158,9 +166,9 @@ fn write_audio_i16(
             let value = if idx2 < audio_data.samples.len() {
                 let sample1 = audio_data.samples[idx1];
                 let sample2 = audio_data.samples[idx2];
-                (sample1 + (sample2 - sample1) * frac as f32) * volume
+                (sample1 + (sample2 - sample1) * frac as f32) * scaled_volume
             } else if idx1 < audio_data.samples.len() {
-                audio_data.samples[idx1] * volume
+                audio_data.samples[idx1] * scaled_volume
             } else {
                 0.0
             };
@@ -183,6 +191,10 @@ fn write_audio_u16(
     let mut index = sample_index.lock().unwrap();
     let input_channels = audio_data.channels as usize;
     let max_frame = (audio_data.samples.len() / input_channels) as f64;
+    
+    // Apply square root volume curve with base attenuation
+    // Base multiplier of 0.2 for safe default volume (20% of full amplitude)
+    let scaled_volume = volume.sqrt() * 0.2;
 
     for frame in output.chunks_mut(output_channels) {
         if *index >= max_frame - 1.0 {
@@ -205,9 +217,9 @@ fn write_audio_u16(
             let value = if idx2 < audio_data.samples.len() {
                 let sample1 = audio_data.samples[idx1];
                 let sample2 = audio_data.samples[idx2];
-                (sample1 + (sample2 - sample1) * frac as f32) * volume
+                (sample1 + (sample2 - sample1) * frac as f32) * scaled_volume
             } else if idx1 < audio_data.samples.len() {
-                audio_data.samples[idx1] * volume
+                audio_data.samples[idx1] * scaled_volume
             } else {
                 0.0
             };

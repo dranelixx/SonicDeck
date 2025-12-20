@@ -17,8 +17,15 @@ pub struct AppSettings {
     pub broadcast_device_id: Option<DeviceId>,
     /// Default volume (0.0 - 1.0)
     pub default_volume: f32,
+    /// Global volume multiplier for all sounds (0.1 - 1.0), default 0.2
+    #[serde(default = "default_volume_multiplier")]
+    pub volume_multiplier: f32,
     /// Last used audio file path (for convenience)
     pub last_file_path: Option<String>,
+}
+
+fn default_volume_multiplier() -> f32 {
+    1.0 // Default: disabled (no boost), sounds play at normal Windows volume
 }
 
 impl Default for AppSettings {
@@ -27,6 +34,7 @@ impl Default for AppSettings {
             monitor_device_id: None,
             broadcast_device_id: None,
             default_volume: 0.5,
+            volume_multiplier: default_volume_multiplier(),
             last_file_path: None,
         }
     }

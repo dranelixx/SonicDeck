@@ -527,6 +527,13 @@
     "@tauri-apps/cli-win32-ia32-msvc" "2.9.6"
     "@tauri-apps/cli-win32-x64-msvc" "2.9.6"
 
+"@tauri-apps/plugin-dialog@^2.0.0":
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-dialog/-/plugin-dialog-2.4.2.tgz#59937d28757ce834838ad69530ea36cd439acc4f"
+  integrity sha512-lNIn5CZuw8WZOn8zHzmFmDSzg5zfohWoa3mdULP0YFh/VogVdMVWZPcWSHlydsiJhRQYaTNSYKN7RmZKE2lCYQ==
+  dependencies:
+    "@tauri-apps/api" "^2.8.0"
+
 "@tauri-apps/plugin-shell@^2.0.0":
   version "2.3.3"
   resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-shell/-/plugin-shell-2.3.3.tgz#ddbd9253d55e18343c6179243fd4fd2075bf15e8"
@@ -725,6 +732,16 @@ electron-to-chromium@^1.5.263:
   version "1.5.267"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.5.267.tgz#5d84f2df8cdb6bfe7e873706bb21bd4bfb574dc7"
   integrity sha512-0Drusm6MVRXSOJpGbaSVgcQsuB4hEkMpHXaVstcPmhu5LIedxs1xNK/nIxmQIU/RPC0+1/o0AVZfBTkTNJOdUw==
+
+emojibase-data@^17.0.0:
+  version "17.0.0"
+  resolved "https://registry.yarnpkg.com/emojibase-data/-/emojibase-data-17.0.0.tgz#5816fba6395da6b567fbd54b029ca6b5de2d9255"
+  integrity sha512-Yvgb5AWoHViHV/gq1qr5ZAarcBip+B27/ZLRsUJkbgAEaLlZ/fof9g882LTpmEpyhBNEC0m2SEmItljHsTygjA==
+
+emojibase@^17.0.0:
+  version "17.0.0"
+  resolved "https://registry.yarnpkg.com/emojibase/-/emojibase-17.0.0.tgz#711350fe0f2862945fecd06147370623874ba15e"
+  integrity sha512-bXdpf4HPY3p41zK5swVKZdC/VynsMZ4LoLxdYDE+GucqkFwzcM1GVc4ODfYAlwoKaf2U2oNNUoOO78N96ovpBA==
 
 esbuild@^0.21.3:
   version "0.21.5"

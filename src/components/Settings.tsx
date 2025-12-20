@@ -11,6 +11,7 @@ interface AppSettings {
   monitor_device_id: string | null;
   broadcast_device_id: string | null;
   default_volume: number;
+  volume_multiplier: number;
   last_file_path: string | null;
 }
 
@@ -33,6 +34,7 @@ export default function Settings({
     monitor_device_id: null,
     broadcast_device_id: null,
     default_volume: 0.5,
+    volume_multiplier: 1.0,
     last_file_path: null,
   });
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -298,6 +300,56 @@ export default function Settings({
               <p className="text-xs text-discord-text-muted mt-1">
                 This volume will be used by default for new sound playbacks. Recommended: 50% or lower for hearing protection.
               </p>
+            </div>
+
+            {/* Global Volume Boost */}
+            <div>
+              <div className="flex items-center gap-2 text-sm font-medium text-discord-text mb-2">
+                <input
+                  type="checkbox"
+                  checked={settings.volume_multiplier > 1.0}
+                  onChange={(e) => {
+                    // Toggle: 1.0 = disabled, 2.0 = enabled with 2x boost
+                    updateSetting("volume_multiplier", e.target.checked ? 2.0 : 1.0);
+                  }}
+                  className="rounded border-discord-dark bg-discord-darker
+                           text-discord-primary focus:ring-discord-primary cursor-pointer"
+                />
+                <span>Global Volume Boost</span>
+                {settings.volume_multiplier > 1.0 && (
+                  <span className="ml-1 font-bold">(+{Math.round((Math.min(3.0, settings.volume_multiplier) - 1.0) * 100)}%)</span>
+                )}
+              </div>
+              
+              {settings.volume_multiplier > 1.0 && (
+                <>
+                  <div className="relative mt-2">
+                    <input
+                      type="range"
+                      min="1.1"
+                      max="3.0"
+                      step="0.1"
+                      value={Math.min(3.0, settings.volume_multiplier)}
+                      onChange={(e) =>
+                        updateSetting("volume_multiplier", parseFloat(e.target.value))
+                      }
+                      className="w-full"
+                      style={{
+                        accentColor: '#5865f2'
+                      }}
+                    />
+                  </div>
+                  <p className="text-xs text-discord-text-muted mt-1">
+                    Amplifies all sounds beyond their normal volume. Range: +10% to +200%. Use if sounds are too quiet.
+                  </p>
+                </>
+              )}
+              
+              {settings.volume_multiplier <= 1.0 && (
+                <p className="text-xs text-discord-text-muted mt-1">
+                  Sounds play at normal Windows Media Player volume (no boost applied).
+                </p>
+              )}
             </div>
           </div>
 

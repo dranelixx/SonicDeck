@@ -4,6 +4,7 @@
 
 mod audio;
 mod settings;
+mod sounds;
 
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc;
@@ -15,6 +16,7 @@ use tauri::{Emitter, State};
 
 pub use audio::{AudioDevice, AudioManager, DeviceId};
 pub use settings::AppSettings;
+pub use sounds::{Sound, SoundId, Category, CategoryId, SoundLibrary};
 
 // ============================================================================
 // TAURI COMMANDS - Audio
@@ -196,6 +198,131 @@ fn get_settings_file_path(app_handle: tauri::AppHandle) -> Result<String, String
 }
 
 // ============================================================================
+// TAURI COMMANDS - Sound Library
+// ============================================================================
+
+/// Load the sound library
+#[tauri::command]
+fn load_sounds(app_handle: tauri::AppHandle) -> Result<SoundLibrary, String> {
+    sounds::load(&app_handle)
+}
+
+/// Add a new sound to the library
+#[tauri::command]
+fn add_sound(
+    name: String,
+    file_path: String,
+    category_id: CategoryId,
+    icon: Option<String>,
+    volume: Option<f32>,
+    app_handle: tauri::AppHandle,
+) -> Result<Sound, String> {
+    let mut library = sounds::load(&app_handle)?;
+    let sound = sounds::add_sound(&mut library, name, file_path, category_id, icon, volume);
+    sounds::save(&library, &app_handle)?;
+    Ok(sound)
+}
+
+/// Update an existing sound
+#[tauri::command]
+fn update_sound(
+    sound_id: SoundId,
+    name: String,
+    file_path: String,
+    category_id: CategoryId,
+    icon: Option<String>,
+    volume: Option<f32>,
+    app_handle: tauri::AppHandle,
+) -> Result<Sound, String> {
+    let mut library = sounds::load(&app_handle)?;
+    // Always update all fields when editing (simpler API)
+    let sound = sounds::update_sound(
+        &mut library,
+        &sound_id,
+        Some(name),
+        Some(file_path),
+        Some(category_id),
+        Some(icon),
+        Some(volume),
+        None, // Don't change is_favorite here
+    )?;
+    sounds::save(&library, &app_handle)?;
+    Ok(sound)
+}
+
+/// Toggle favorite status of a sound
+#[tauri::command]
+fn toggle_favorite(
+    sound_id: SoundId,
+    app_handle: tauri::AppHandle,
+) -> Result<Sound, String> {
+    let mut library = sounds::load(&app_handle)?;
+    
+    // Find the sound and toggle is_favorite
+    let sound = library
+        .sounds
+        .iter_mut()
+        .find(|s| s.id == sound_id)
+        .ok_or_else(|| format!("Sound not found: {}", sound_id.as_str()))?;
+    
+    sound.is_favorite = !sound.is_favorite;
+    let updated_sound = sound.clone();
+    
+    sounds::save(&library, &app_handle)?;
+    Ok(updated_sound)
+}
+
+/// Delete a sound from the library
+#[tauri::command]
+fn delete_sound(sound_id: SoundId, app_handle: tauri::AppHandle) -> Result<(), String> {
+    let mut library = sounds::load(&app_handle)?;
+    sounds::delete_sound(&mut library, &sound_id)?;
+    sounds::save(&library, &app_handle)?;
+    Ok(())
+}
+
+/// Add a new category
+#[tauri::command]
+fn add_category(
+    name: String,
+    icon: Option<String>,
+    app_handle: tauri::AppHandle,
+) -> Result<Category, String> {
+    let mut library = sounds::load(&app_handle)?;
+    let category = sounds::add_category(&mut library, name, icon);
+    sounds::save(&library, &app_handle)?;
+    Ok(category)
+}
+
+/// Update an existing category
+#[tauri::command]
+fn update_category(
+    category_id: CategoryId,
+    name: Option<String>,
+    icon: Option<Option<String>>,
+    sort_order: Option<i32>,
+    app_handle: tauri::AppHandle,
+) -> Result<Category, String> {
+    let mut library = sounds::load(&app_handle)?;
+    let category = sounds::update_category(&mut library, &category_id, name, icon, sort_order)?;
+    sounds::save(&library, &app_handle)?;
+    Ok(category)
+}
+
+/// Delete a category
+#[tauri::command]
+fn delete_category(
+    category_id: CategoryId,
+    move_sounds_to: Option<CategoryId>,
+    app_handle: tauri::AppHandle,
+) -> Result<(), String> {
+    let mut library = sounds::load(&app_handle)?;
+    sounds::delete_category(&mut library, &category_id, move_sounds_to)?;
+    sounds::save(&library, &app_handle)?;
+    Ok(())
+}
+
+// ============================================================================
 // TAURI APP INITIALIZATION
 // ============================================================================
 
@@ -204,6 +331,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_dialog::init())
         .manage(AudioManager::new())
         .invoke_handler(tauri::generate_handler![
             list_audio_devices,
@@ -213,6 +341,14 @@ pub fn run() {
             load_settings,
             save_settings,
             get_settings_file_path,
+            load_sounds,
+            add_sound,
+            update_sound,
+            toggle_favorite,
+            delete_sound,
+            add_category,
+            update_category,
+            delete_category,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
