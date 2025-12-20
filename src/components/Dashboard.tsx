@@ -63,7 +63,7 @@ export default function Dashboard({
     }
   }, [settings, hasLoadedSettings, setDevice1, setDevice2]);
 
-  // Listen for audio decode complete events
+  // Listen for audio events
   useEffect(() => {
     const unlisten = listen<string>("audio-decode-complete", (event) => {
       setIsLoading(false);
@@ -77,9 +77,15 @@ export default function Dashboard({
       setStatus(`Decode Error: ${event.payload}`);
     });
 
+    const unlistenComplete = listen<string>("playback-complete", () => {
+      setIsPlaying(false);
+      setStatus("Playback finished");
+    });
+
     return () => {
       unlisten.then(fn => fn());
       unlistenError.then(fn => fn());
+      unlistenComplete.then(fn => fn());
     };
   }, []);
 
