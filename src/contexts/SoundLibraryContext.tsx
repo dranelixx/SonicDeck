@@ -47,7 +47,7 @@ export function SoundLibraryProvider({ children }: { children: ReactNode }) {
       }
     };
     loadSounds();
-  }, []);
+  }, [refreshSounds]);
 
   return (
     <SoundLibraryContext.Provider

@@ -55,7 +55,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       }
     };
     loadSettings();
-  }, []);
+  }, [reloadSettings]);
 
   return (
     <SettingsContext.Provider

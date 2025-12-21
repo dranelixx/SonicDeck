@@ -42,7 +42,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       }
     };
     loadDevices();
-  }, []);
+  }, [refreshDevices]);
 
   return (
     <AudioContext.Provider value={{ devices, refreshDevices, isLoading }}>
