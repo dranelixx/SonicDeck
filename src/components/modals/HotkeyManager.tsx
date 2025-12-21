@@ -37,8 +37,8 @@ export default function HotkeyManager({
   };
 
   // Handle key down during capture
-  // eslint-disable-next-line no-undef
-  const handleKeyDown = (e: KeyboardEvent) => {
+  // Using native DOM KeyboardEvent for addEventListener compatibility
+  const handleKeyDown = (e: globalThis.KeyboardEvent) => {
     if (!isCapturing) return;
 
     e.preventDefault();
