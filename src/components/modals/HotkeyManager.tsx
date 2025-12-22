@@ -1,11 +1,7 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Sound } from "../types";
-import { formatHotkeyForDisplay } from "../utils/hotkeyDisplay";
-
-interface HotkeyMapping {
-  mappings: Record<string, string>; // hotkey -> sound_id
-}
+import { Sound, HotkeyMapping } from "../../types";
+import { formatHotkeyForDisplay } from "../../utils/hotkeyDisplay";
 
 interface HotkeyManagerProps {
   sound: Sound;
@@ -41,8 +37,8 @@ export default function HotkeyManager({
   };
 
   // Handle key down during capture
-  // eslint-disable-next-line no-undef
-  const handleKeyDown = (e: KeyboardEvent) => {
+  // Using native DOM KeyboardEvent for addEventListener compatibility
+  const handleKeyDown = (e: globalThis.KeyboardEvent) => {
     if (!isCapturing) return;
 
     e.preventDefault();

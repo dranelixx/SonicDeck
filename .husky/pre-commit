@@ -1,7 +1,4 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-echo "🚀 Running pre-commit checks for SonicDeck..."
+echo "🚀 Running pre-commit checks for Sonic Deck..."
 
 # TypeScript type check
 echo "🔍 TypeScript compilation check..."

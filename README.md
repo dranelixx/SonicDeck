@@ -1,8 +1,8 @@
-# SonicDeck 🎵
+# Sonic Deck 🎵
 
 **High-performance desktop soundboard application built with Tauri v2, Rust, React, and TypeScript.**
 
-Designed for gamers, streamers, and content creators who need professional audio routing with minimal latency. SonicDeck features a sleek, Discord-inspired dark theme and powerful audio management tools.
+Designed for gamers, streamers, and content creators who need professional audio routing with minimal latency. Sonic Deck features a sleek, Discord-inspired dark theme and powerful audio management tools.
 
 ---
 
@@ -13,7 +13,7 @@ Play sounds to two separate audio devices simultaneously (e.g., headphones + vir
 
 ### 🎛️ Sound Library Management
 - **Category Organization**: Organize sounds with custom categories
-- **Drag & Drop Import**: Drop MP3, WAV, or OGG files directly into the app
+- **Drag & Drop Import**: Drop MP3, WAV, OGG, or M4A/AAC files directly into the app
 - **Favorites System**: Star your most-used sounds for quick access
 - **Custom Icons**: Assign emojis to sounds with built-in picker
 - **Per-Sound Volume**: Individual volume control for each sound
@@ -35,13 +35,20 @@ Play sounds to two separate audio devices simultaneously (e.g., headphones + vir
 - **Thread-per-playback**: Parallel sound playback without blocking
 - **Background Decoding**: No UI freezes, even with large files
 
+### ⌨️ Global Hotkeys & System Integration
+- **Global Hotkeys**: Trigger sounds from anywhere with customizable keyboard shortcuts
+- **System Tray**: Minimize to tray with quick access menu
+- **Autostart**: Optional launch on system boot
+- **Start Minimized**: Begin in system tray for unobtrusive startup
+
 ## 🗺️ Development Status
 
 - ✅ **Phase 1**: Audio Foundation (Dual-output engine, device enumeration)
 - ✅ **Phase 2**: Settings & UI (Device configuration, navigation)
 - ✅ **Phase 3**: Sound Library Management (Categories, favorites, drag & drop)
 - ✅ **Phase 4**: Audio Caching, Waveform Visualization & Trim Editor
-- 📋 **Phase 5**: System Integration (Global hotkeys, system tray, autostart)
+- ✅ **Phase 5**: System Integration (Global hotkeys, system tray, autostart)
+- 🚀 **Current**: Beta testing, bug fixes, polish, and community feedback
 
 ## 🐛 Beta Testing & Logging
 
@@ -56,7 +63,7 @@ This helps immensely with debugging! See `TESTING_GUIDE.html` for detailed instr
 
 ## 🎨 Looking for an Artist!
 
-**We're searching for a talented artist to create visual assets for SonicDeck!**
+**I'm searching for a talented artist to create visual assets for Sonic Deck!**
 
 Needed:
 - App branding (logo, icons, banners)
@@ -75,7 +82,7 @@ If you're passionate about design and want to contribute to an open-source proje
 
 ## 🚀 Getting Started
 
-> **Note**: SonicDeck is feature-complete for Phases 1-4. Phase 5 (global hotkeys, system tray) is planned.
+> **Note**: Sonic Deck is currently in **beta testing** with all core features complete. I'm actively gathering feedback and fixing bugs!
 
 ### Prerequisites
 
@@ -89,8 +96,8 @@ If you're passionate about design and want to contribute to an open-source proje
 1. **Clone the repository:**
 
    ```sh
-   git clone https://github.com/DraneLixX/SonicDeck.git
-   cd SonicDeck
+   git clone https://github.com/DraneLixX/Sonic-Deck.git
+   cd Sonic-Deck
    ```
 
 2. **Install frontend dependencies:**
@@ -125,7 +132,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ```
 Copyright (c) 2025 Adrian Konopczynski (DraneLixX)
-SonicDeck - High-Performance Desktop Soundboard
+Sonic Deck - High-Performance Desktop Soundboard
 ```
 
 **What this means:**
@@ -142,8 +149,8 @@ SonicDeck - High-Performance Desktop Soundboard
 **Developer:** Adrian Konopczynski (DraneLixX)
 - 📧 Email: adrikonop@gmail.com
 - 💬 Discord: dranelixx (ID: 624679678573150219)
-- 🐛 GitHub Issues: [Report a Bug](https://github.com/DraneLixX/SonicDeck/issues)
-- 🌐 Repository: [github.com/DraneLixX/SonicDeck](https://github.com/DraneLixX/SonicDeck)
+- 🐛 GitHub Issues: [Report a Bug](https://github.com/DraneLixX/Sonic-Deck/issues)
+- 🌐 Repository: [github.com/DraneLixX/Sonic-Deck](https://github.com/DraneLixX/Sonic-Deck)
 
 ---
 
