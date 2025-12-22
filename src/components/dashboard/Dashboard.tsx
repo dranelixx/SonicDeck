@@ -168,6 +168,8 @@ export default function Dashboard({
     .sort((a, b) => a.name.localeCompare(b.name));
 
   // Check if selected devices are still available
+  // Note: Using [devices] instead of [devices.length] to trigger on any device list changes
+  // React compares array references, not just length
   useEffect(() => {
     if (devices.length > 0 && device1 && device2) {
       const device1Available = devices.some((d) => d.id === device1);
@@ -364,7 +366,7 @@ export default function Dashboard({
               Drop audio file to add sound
             </p>
             <p className="text-sm text-discord-text-muted mt-2">
-              Supports MP3, WAV, OGG, M4A
+              Supports MP3, WAV, OGG, M4A, FLAC
             </p>
           </div>
         </div>

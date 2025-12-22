@@ -74,13 +74,19 @@ pub fn play_dual_output(
                 error!("Failed to decode audio: {}", e);
                 manager_inner.lock().unwrap().remove(&playback_id_clone);
                 // Emit error event
-                let _ = app_handle.emit("audio-decode-error", format!("Failed to decode: {}", e));
+                if let Err(emit_err) =
+                    app_handle.emit("audio-decode-error", format!("Failed to decode: {}", e))
+                {
+                    error!("Failed to emit decode error event: {}", emit_err);
+                }
                 return;
             }
         };
 
         // Emit event that decoding is complete and playback is starting
-        let _ = app_handle.emit("audio-decode-complete", &playback_id_clone);
+        if let Err(e) = app_handle.emit("audio-decode-complete", &playback_id_clone) {
+            error!("Failed to emit decode complete event: {}", e);
+        }
 
         // This thread owns the streams - no Send issues!
         let host = cpal::default_host();
@@ -98,7 +104,11 @@ pub fn play_dual_output(
         let (idx1, idx2) = match (device_id_1.index(), device_id_2.index()) {
             (Ok(i1), Ok(i2)) => (i1, i2),
             _ => {
-                error!("Invalid device IDs: {} / {}", device_id_1, device_id_2);
+                let error_msg = format!("Invalid device IDs: {} / {}", device_id_1, device_id_2);
+                error!("{}", error_msg);
+                if let Err(e) = app_handle.emit("audio-device-error", error_msg) {
+                    error!("Failed to emit device error event: {}", e);
+                }
                 manager_inner.lock().unwrap().remove(&playback_id_clone);
                 return;
             }
@@ -173,7 +183,7 @@ pub fn play_dual_output(
             // Emit progress event
             let progress_pct =
                 ((elapsed_ms as f64 / total_sleep_ms as f64) * 100.0).min(100.0) as u8;
-            let _ = app_handle.emit(
+            if let Err(e) = app_handle.emit(
                 "playback-progress",
                 PlaybackProgress {
                     playback_id: playback_id_clone.clone(),
@@ -181,16 +191,24 @@ pub fn play_dual_output(
                     total_ms: total_sleep_ms,
                     progress_pct,
                 },
-            );
+            ) {
+                error!("Failed to emit progress event: {}", e);
+            }
         }
 
         // Clean up
         drop(stream_1);
         drop(stream_2);
-        manager_inner.lock().unwrap().remove(&playback_id_clone);
 
-        // Emit playback complete event
-        let _ = app_handle.emit("playback-complete", &playback_id_clone);
+        // Emit playback complete event first, so frontend knows it's done.
+        // This prevents race conditions where frontend sends stop_playback
+        // just before receiving this event.
+        if let Err(e) = app_handle.emit("playback-complete", &playback_id_clone) {
+            error!("Failed to emit playback complete event: {}", e);
+        }
+
+        // Remove from manager last
+        manager_inner.lock().unwrap().remove(&playback_id_clone);
     });
 
     Ok(playback_id)

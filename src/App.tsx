@@ -5,13 +5,18 @@ import Settings from "./components/settings/Settings";
 import ErrorBoundary from "./components/common/ErrorBoundary";
 import { AudioProvider } from "./contexts/AudioContext";
 import { SettingsProvider, useSettings } from "./contexts/SettingsContext";
-import { SoundLibraryProvider } from "./contexts/SoundLibraryContext";
+import {
+  SoundLibraryProvider,
+  useSoundLibrary,
+} from "./contexts/SoundLibraryContext";
+import { DEBUG } from "./constants";
 
 type View = "dashboard" | "settings";
 
 function AppContent() {
   const [currentView, setCurrentView] = useState<View>("dashboard");
-  const { settings } = useSettings();
+  const { settings, isLoading: settingsLoading } = useSettings();
+  const { isLoading: soundsLoading } = useSoundLibrary();
 
   // Dashboard-specific state that persists across view changes
   const [dashboardDevice1, setDashboardDevice1] = useState<string>("");
@@ -22,27 +27,30 @@ function AppContent() {
     if (!settings) return;
 
     const window = getCurrentWindow();
-    console.log(
-      "Setting up close handler, minimize_to_tray:",
-      settings.minimize_to_tray
-    );
-
-    const unlisten = window.onCloseRequested(async (event) => {
+    if (DEBUG)
       console.log(
-        "Close event received! minimize_to_tray:",
+        "Setting up close handler, minimize_to_tray:",
         settings.minimize_to_tray
       );
+
+    const unlisten = window.onCloseRequested(async (event) => {
+      if (DEBUG)
+        console.log(
+          "Close event received! minimize_to_tray:",
+          settings.minimize_to_tray
+        );
 
       if (settings.minimize_to_tray) {
         event.preventDefault();
         try {
           await window.hide();
-          console.log("Window minimized to tray via X button");
+          if (DEBUG) console.log("Window minimized to tray via X button");
         } catch (err) {
           console.error("Failed to hide window:", err);
         }
       } else {
-        console.log("Window closing normally (minimize_to_tray is disabled)");
+        if (DEBUG)
+          console.log("Window closing normally (minimize_to_tray is disabled)");
       }
     });
 
@@ -50,6 +58,15 @@ function AppContent() {
       unlisten.then((fn) => fn());
     };
   }, [settings?.minimize_to_tray]);
+
+  // Show loading state while contexts initialize
+  if (settingsLoading || soundsLoading) {
+    return (
+      <div className="w-full h-full bg-discord-darkest flex items-center justify-center">
+        <div className="text-discord-text-muted text-lg">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full bg-discord-darkest flex">
@@ -112,13 +129,19 @@ function AppContent() {
 
 function App() {
   return (
-    <AudioProvider>
-      <SettingsProvider>
-        <SoundLibraryProvider>
-          <AppContent />
-        </SoundLibraryProvider>
-      </SettingsProvider>
-    </AudioProvider>
+    <ErrorBoundary>
+      <AudioProvider>
+        <ErrorBoundary>
+          <SettingsProvider>
+            <ErrorBoundary>
+              <SoundLibraryProvider>
+                <AppContent />
+              </SoundLibraryProvider>
+            </ErrorBoundary>
+          </SettingsProvider>
+        </ErrorBoundary>
+      </AudioProvider>
+    </ErrorBoundary>
   );
 }
 

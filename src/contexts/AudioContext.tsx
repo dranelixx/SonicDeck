@@ -12,14 +12,12 @@ import { AudioDevice } from "../types";
 interface AudioContextType {
   devices: AudioDevice[];
   refreshDevices: () => Promise<void>;
-  isLoading: boolean;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
 
 export function AudioProvider({ children }: { children: ReactNode }) {
   const [devices, setDevices] = useState<AudioDevice[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   const refreshDevices = useCallback(async () => {
     try {
@@ -37,15 +35,13 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         await refreshDevices();
       } catch (error) {
         console.error("Failed to load devices:", error);
-      } finally {
-        setIsLoading(false);
       }
     };
     loadDevices();
   }, [refreshDevices]);
 
   return (
-    <AudioContext.Provider value={{ devices, refreshDevices, isLoading }}>
+    <AudioContext.Provider value={{ devices, refreshDevices }}>
       {children}
     </AudioContext.Provider>
   );

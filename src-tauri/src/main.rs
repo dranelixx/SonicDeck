@@ -23,7 +23,7 @@ fn setup_logging() {
     // Then we'll manually rename or use a custom wrapper
     let file_appender = RollingFileAppender::builder()
         .rotation(Rotation::DAILY)
-        .filename_prefix("sonic-deck")
+        .filename_prefix("sonicdeck")
         .filename_suffix("log")
         .max_log_files(7)
         .build(&app_data_dir)
