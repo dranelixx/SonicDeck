@@ -11,12 +11,6 @@ on:
       - '.github/workflows/rust.yml'
   pull_request:
     branches: [ main ]
-    paths:
-      - 'src-tauri/**'
-      - 'src/**'
-      - 'package.json'
-      - 'yarn.lock'
-      - '.github/workflows/rust.yml'
 
 jobs:
   quality:

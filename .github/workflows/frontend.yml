@@ -14,15 +14,6 @@ on:
       - '.github/workflows/frontend.yml'
   pull_request:
     branches: [ main ]
-    paths:
-      - 'src/**'
-      - 'package.json'
-      - 'yarn.lock'
-      - 'tsconfig*.json'
-      - 'eslint.config.js'
-      - '.prettierrc'
-      - 'vite.config.ts'
-      - '.github/workflows/frontend.yml'
 
 jobs:
   check:
