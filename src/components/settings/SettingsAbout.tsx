@@ -1,11 +1,15 @@
 export default function SettingsAbout() {
+  const appVersion = import.meta.env.VITE_APP_VERSION || "unknown";
+
   return (
     <div className="bg-discord-dark rounded-lg p-6 border-l-4 border-discord-primary">
       <div className="flex items-center gap-3 mb-4">
         <span className="text-3xl">🎵</span>
         <div>
           <h3 className="text-xl font-bold text-discord-text">Sonic Deck</h3>
-          <p className="text-sm text-discord-text-muted">Version 0.6.0 Beta</p>
+          <p className="text-sm text-discord-text-muted">
+            Version {appVersion}
+          </p>
         </div>
       </div>
 
