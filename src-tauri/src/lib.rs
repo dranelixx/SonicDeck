@@ -375,6 +375,26 @@ pub fn run() {
 
             Ok(())
         })
+        .on_window_event(|window, event| {
+            // Handle window close button based on minimize_to_tray setting
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                let app = window.app_handle();
+                let state = app.state::<AppState>();
+                let settings = state.read_settings();
+                let minimize_to_tray = settings.minimize_to_tray;
+                drop(settings);
+
+                if minimize_to_tray {
+                    // Minimize to tray instead of closing
+                    api.prevent_close();
+                    let _ = window.hide();
+                    info!("Window minimized to tray (X button)");
+                } else {
+                    // Allow normal close
+                    info!("Window closing (minimize_to_tray disabled)");
+                }
+            }
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
