@@ -11,6 +11,22 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
+ * SemVer pattern for SonicDeck build versions
+ * Format: X.Y.Z or X.Y.Z-N where N is 0 (alpha), 1 (beta), or 2 (rc)
+ * Examples: "1.0.0", "0.7.0-0", "0.8.0-1", "0.9.0-2"
+ */
+const SEMVER_PATTERN = /^\d+\.\d+\.\d+(-[0-2])?$/;
+
+/**
+ * Validate version string against SemVer pattern
+ * @param {string} version - Version string to validate
+ * @returns {boolean} True if valid
+ */
+function isValidVersion(version) {
+  return typeof version === 'string' && SEMVER_PATTERN.test(version);
+}
+
+/**
  * Read and parse a JSON file safely
  * @param {string} filePath - Path to the JSON file
  * @param {string} description - Description for error messages
@@ -78,8 +94,11 @@ const versionFilePath = path.join(__dirname, '../version.json');
 const versionData = readJsonFile(versionFilePath, 'version.json');
 const { version } = versionData;
 
-if (!version || typeof version !== 'string') {
-  console.error('❌ Error: No valid version found in version.json');
+// Validate version format
+if (!isValidVersion(version)) {
+  console.error(`❌ Error: Invalid version format "${version}"`);
+  console.error('   Expected: X.Y.Z or X.Y.Z-N where N is 0 (alpha), 1 (beta), or 2 (rc)');
+  console.error('   Examples: "1.0.0", "0.7.0-0", "0.8.0-1", "0.9.0-2"');
   process.exit(1);
 }
 
