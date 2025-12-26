@@ -5,7 +5,7 @@
 use cpal::traits::{DeviceTrait, StreamTrait};
 use cpal::{Device, Stream};
 use std::sync::{Arc, Mutex};
-use tracing::error;
+use tracing::{error, warn};
 
 use super::{AudioData, AudioError};
 
@@ -23,6 +23,14 @@ pub fn create_playback_stream(
 
     let output_sample_rate = config.sample_rate().0;
     let channels = config.channels() as usize;
+
+    // Log channel mapping for multi-channel devices
+    if channels > audio_data.channels as usize {
+        warn!(
+            "Device has {} output channels, audio has {} channels - extra channels will be silent",
+            channels, audio_data.channels
+        );
+    }
 
     // Initialize sample index to start_frame (or 0)
     let start_idx = start_frame.unwrap_or(0) as f64;
