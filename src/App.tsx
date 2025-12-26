@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { getCurrentWindow } from "@tauri-apps/api/window";
+import { useState } from "react";
 import Dashboard from "./components/dashboard/Dashboard";
 import Settings from "./components/settings/Settings";
 import ErrorBoundary from "./components/common/ErrorBoundary";
@@ -9,55 +8,20 @@ import {
   SoundLibraryProvider,
   useSoundLibrary,
 } from "./contexts/SoundLibraryContext";
-import { DEBUG } from "./constants";
 
 type View = "dashboard" | "settings";
 
 function AppContent() {
   const [currentView, setCurrentView] = useState<View>("dashboard");
-  const { settings, isLoading: settingsLoading } = useSettings();
+  const { isLoading: settingsLoading } = useSettings();
   const { isLoading: soundsLoading } = useSoundLibrary();
 
   // Dashboard-specific state that persists across view changes
   const [dashboardDevice1, setDashboardDevice1] = useState<string>("");
   const [dashboardDevice2, setDashboardDevice2] = useState<string>("");
 
-  // Handle window close event based on minimize_to_tray setting
-  useEffect(() => {
-    if (!settings) return;
-
-    const window = getCurrentWindow();
-    if (DEBUG)
-      console.log(
-        "Setting up close handler, minimize_to_tray:",
-        settings.minimize_to_tray
-      );
-
-    const unlisten = window.onCloseRequested(async (event) => {
-      if (DEBUG)
-        console.log(
-          "Close event received! minimize_to_tray:",
-          settings.minimize_to_tray
-        );
-
-      if (settings.minimize_to_tray) {
-        event.preventDefault();
-        try {
-          await window.hide();
-          if (DEBUG) console.log("Window minimized to tray via X button");
-        } catch (err) {
-          console.error("Failed to hide window:", err);
-        }
-      } else {
-        if (DEBUG)
-          console.log("Window closing normally (minimize_to_tray is disabled)");
-      }
-    });
-
-    return () => {
-      unlisten.then((fn) => fn());
-    };
-  }, [settings?.minimize_to_tray]);
+  // Note: Window close behavior (minimize to tray vs quit) is handled
+  // in the Rust backend via on_window_event for consistent behavior
 
   // Show loading state while contexts initialize
   if (settingsLoading || soundsLoading) {
