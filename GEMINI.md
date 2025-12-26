@@ -1,3 +1,3 @@
-# GEMINI.md - Sonic Deck Project Instructions
+# GEMINI.md - SonicDeck Project Instructions
 
 @AGENTS.md

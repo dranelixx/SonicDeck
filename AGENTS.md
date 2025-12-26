@@ -1,12 +1,12 @@
-# AGENTS.md - Sonic Deck Project Instructions
+# AGENTS.md - SonicDeck Project Instructions
 
-This file contains project-specific instructions for AI Agents when working on the Sonic Deck codebase.
+This file contains project-specific instructions for AI Agents when working on the SonicDeck codebase.
 
 ---
 
 ## Project Overview
 
-Sonic Deck is a high-performance desktop soundboard application built with:
+SonicDeck is a high-performance desktop soundboard application built with:
 
 - **Frontend**: React 18.2.0 + TypeScript 5.3.3 + Vite 5.0.8 + TailwindCSS 3.4.0
 - **Backend**: Tauri v2 + Rust (cpal + symphonia for audio)
@@ -122,7 +122,7 @@ Sonic Deck is a high-performance desktop soundboard application built with:
 
 **Single Source of Truth**: `version.json` (root directory)
 
-**Key Concept**: Sonic Deck uses a **dual-version system** for MSI compatibility:
+**Key Concept**: SonicDeck uses a **dual-version system** for MSI compatibility:
 - **Build Version**: Numeric format (e.g., `0.7.0-0`) for MSI installers
 - **Display Version**: User-friendly format (e.g., `v0.7.0-alpha`) composed from `version` + `channel` fields
 

@@ -1,8 +1,8 @@
-# Sonic Deck 🎵
+# SonicDeck 🎵
 
 **High-performance desktop soundboard application built with Tauri v2, Rust, React, and TypeScript.**
 
-Designed for gamers, streamers, and content creators who need professional audio routing with minimal latency. Sonic Deck features a sleek, Discord-inspired dark theme and powerful audio management tools.
+Designed for gamers, streamers, and content creators who need professional audio routing with minimal latency. SonicDeck features a sleek, Discord-inspired dark theme and powerful audio management tools.
 
 ---
 
@@ -63,7 +63,7 @@ This helps immensely with debugging! See `TESTING_GUIDE.html` for detailed instr
 
 ## 🎨 Looking for an Artist!
 
-**I'm searching for a talented artist to create visual assets for Sonic Deck!**
+**I'm searching for a talented artist to create visual assets for SonicDeck!**
 
 Needed:
 - App branding (logo, icons, banners)
@@ -82,7 +82,7 @@ If you're passionate about design and want to contribute to an open-source proje
 
 ## 🚀 Getting Started
 
-> **Note**: Sonic Deck is currently in **beta testing** with all core features complete. I'm actively gathering feedback and fixing bugs!
+> **Note**: SonicDeck is currently in **beta testing** with all core features complete. I'm actively gathering feedback and fixing bugs!
 
 ### Prerequisites
 
@@ -132,7 +132,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ```
 Copyright (c) 2025 Adrian Konopczynski (DraneLixX)
-Sonic Deck - High-Performance Desktop Soundboard
+SonicDeck - High-Performance Desktop Soundboard
 ```
 
 **What this means:**

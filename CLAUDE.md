@@ -1,3 +1,3 @@
-# CLAUDE.md - Sonic Deck Project Instructions
+# CLAUDE.md - SonicDeck Project Instructions
 
 @AGENTS.md
