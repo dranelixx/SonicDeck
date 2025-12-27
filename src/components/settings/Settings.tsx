@@ -26,6 +26,7 @@ export default function Settings() {
     minimize_to_tray: false,
     start_minimized: false,
     autostart_enabled: false,
+    playback_policy: "steal_newest",
   });
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
