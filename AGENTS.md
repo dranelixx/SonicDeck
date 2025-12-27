@@ -63,6 +63,26 @@ SonicDeck is a high-performance desktop soundboard application built with:
   - `chore:` - Maintenance
   - `test:` - Tests
 
+- **Commit Message Format** (Problem/Solution structure):
+
+  ```
+  fix: short description
+
+  Problem:
+  - bullet point
+
+  Solution:
+  - bullet point
+
+  Backend (Rust):
+  - specific changes
+
+  Frontend (React):
+  - specific changes
+  ```
+
+  Omit Backend/Frontend sections if not applicable.
+
 ---
 
 ## Development Workflow
@@ -272,6 +292,19 @@ src-tauri/src/
 
 ---
 
+## Backlog & Project Management
+
+**TriliumNext Backlog System**:
+- **Now/Next/Later** (C3uScCyjwu6O): Current sprint + upcoming work
+- **High Priority** (ZTLmPPFwSqAF): Critical features
+- **Medium Priority** (lS0pzzvavT0d): Standard features
+- **Low Priority** (noVVr31giHQv): Nice-to-have features
+- **Done Archive** (tlr8Wbb82vAK): Completed work
+
+When starting new work, check the "Now/Next/Later" note first for current priorities.
+
+---
+
 ## Known Issues & Roadmap
 
 **Known Limitations**:
@@ -281,8 +314,6 @@ src-tauri/src/
 - Waveform generation CPU-intensive for large files
 
 **Focus Areas for Testing**: Audio playback, device switching, file import, trim editor, hotkeys
-
-📋 **Roadmap & Issues**: See git history and CHANGELOG.md for current development focus
 
 ---
 
