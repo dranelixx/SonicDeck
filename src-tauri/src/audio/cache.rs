@@ -5,9 +5,10 @@
 use std::collections::HashMap;
 use std::num::NonZeroUsize;
 use std::sync::Arc;
-use std::time::SystemTime;
+use std::time::{Instant, SystemTime};
 
 use lru::LruCache;
+use tracing::debug;
 
 use super::decode::decode_audio_file;
 use super::{AudioData, AudioError};
@@ -85,6 +86,14 @@ impl AudioCache {
             if let Some((path, entry)) = self.cache.pop_lru() {
                 self.current_bytes = self.current_bytes.saturating_sub(entry.size_bytes);
                 self.file_times.remove(&path);
+                debug!(
+                    cache = "eviction",
+                    evicted_path = %path,
+                    freed_bytes = entry.size_bytes,
+                    current_bytes = self.current_bytes,
+                    max_bytes = self.max_bytes,
+                    "Cache eviction (LRU)"
+                );
             } else {
                 // Cache is empty, nothing more to evict
                 break;
@@ -94,21 +103,41 @@ impl AudioCache {
 
     /// Get cached audio or decode and cache
     pub fn get_or_decode(&mut self, file_path: &str) -> Result<Arc<AudioData>, AudioError> {
+        let start = Instant::now();
+
         // Check if we have a valid cached version
         if let Some(entry) = self.cache.get(file_path) {
             if Self::is_cache_valid(entry, file_path) {
                 // Cache hit - return the cached data
+                let duration_us = start.elapsed().as_micros();
+                debug!(
+                    cache = "hit",
+                    file_path = %file_path,
+                    duration_us = duration_us,
+                    "Audio cache hit"
+                );
                 return Ok(entry.audio_data.clone());
             } else {
                 // Cache invalid - remove it (will be replaced below)
                 if let Some(removed) = self.cache.pop(file_path) {
                     self.current_bytes = self.current_bytes.saturating_sub(removed.size_bytes);
                     self.file_times.remove(file_path);
+                    debug!(
+                        cache = "invalidated",
+                        file_path = %file_path,
+                        freed_bytes = removed.size_bytes,
+                        "Cache entry invalidated (file changed)"
+                    );
                 }
             }
         }
 
         // Cache miss - decode the file
+        debug!(
+            cache = "miss",
+            file_path = %file_path,
+            "Cache miss, decoding audio"
+        );
         let audio_data = decode_audio_file(file_path)?;
         let audio_data = Arc::new(audio_data);
 
@@ -133,6 +162,15 @@ impl AudioCache {
         if let Some(time) = file_modified {
             self.file_times.insert(file_path.to_string(), time);
         }
+
+        let duration_ms = start.elapsed().as_millis();
+        debug!(
+            cache = "stored",
+            file_path = %file_path,
+            size_bytes = size_bytes,
+            duration_ms = duration_ms,
+            "Audio decoded and cached"
+        );
 
         Ok(audio_data)
     }
