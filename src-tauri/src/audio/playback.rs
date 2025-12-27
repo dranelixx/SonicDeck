@@ -5,7 +5,8 @@
 use cpal::traits::{DeviceTrait, StreamTrait};
 use cpal::{Device, Stream};
 use std::sync::{Arc, Mutex};
-use tracing::{error, warn};
+use std::time::Instant;
+use tracing::{debug, error, warn};
 
 use super::{AudioData, AudioError};
 
@@ -17,12 +18,18 @@ pub fn create_playback_stream(
     start_frame: Option<usize>,
     end_frame: Option<usize>,
 ) -> Result<Stream, AudioError> {
+    let start = Instant::now();
+    let device_name = device.name().unwrap_or_else(|_| "Unknown".to_string());
+
+    debug!(device = %device_name, "Creating playback stream");
+
     let config = device
         .default_output_config()
         .map_err(|e| AudioError::DeviceConfig(e.to_string()))?;
 
     let output_sample_rate = config.sample_rate().0;
     let channels = config.channels() as usize;
+    let sample_format = config.sample_format();
 
     // Log channel mapping for multi-channel devices
     if channels > audio_data.channels as usize {
@@ -121,6 +128,16 @@ pub fn create_playback_stream(
     stream
         .play()
         .map_err(|e| AudioError::StreamStart(e.to_string()))?;
+
+    let duration_ms = start.elapsed().as_millis();
+    debug!(
+        device = %device_name,
+        sample_rate = output_sample_rate,
+        channels = channels,
+        sample_format = ?sample_format,
+        duration_ms = duration_ms,
+        "Playback stream created and started"
+    );
 
     Ok(stream)
 }

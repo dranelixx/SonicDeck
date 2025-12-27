@@ -10,7 +10,7 @@
 use std::sync::mpsc;
 use std::sync::{Arc, Mutex};
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use cpal::traits::HostTrait;
 use tauri::{Emitter, State};
@@ -62,6 +62,13 @@ pub fn play_dual_output(
 ) -> Result<PlaybackResult, String> {
     let volume = volume.clamp(0.0, 1.0);
     let sound_id = sound_id.unwrap_or_default();
+
+    debug!(
+        sound_id = %sound_id,
+        file_path = %file_path,
+        volume = volume,
+        "Playback requested"
+    );
 
     // Minimum time a sound must AUDIBLY play before it can be restarted
     // Lower = more responsive/snappy, but too low may cause audio glitches
@@ -125,6 +132,8 @@ pub fn play_dual_output(
 
     // Spawn dedicated playback thread (including decoding to avoid blocking UI)
     thread::spawn(move || {
+        let thread_start = Instant::now();
+
         // Helper to clean up on early return (before playback starts)
         let cleanup_early =
             |manager_inner: &Arc<Mutex<std::collections::HashMap<String, _>>>,
@@ -265,6 +274,14 @@ pub fn play_dual_output(
         };
 
         // Streams created successfully - NOW the sound is audible!
+        let streams_ready_elapsed = thread_start.elapsed().as_millis();
+        info!(
+            playback_id = %playback_id_clone,
+            sound_id = %sound_id_clone,
+            streams_ready_ms = streams_ready_elapsed,
+            "Audio streams created and playing"
+        );
+
         // Stop the old playback NOW (seamless transition, no audio gap)
         if let Some(ref old_id) = old_playback_to_stop {
             if let Some(sender) = manager_inner.lock().unwrap().remove(old_id) {
@@ -340,6 +357,14 @@ pub fn play_dual_output(
         // Clean up
         drop(stream_1);
         drop(stream_2);
+
+        let total_duration_ms = thread_start.elapsed().as_millis();
+        debug!(
+            playback_id = %playback_id_clone,
+            sound_id = %sound_id_clone,
+            total_duration_ms = total_duration_ms,
+            "Playback complete"
+        );
 
         // Emit playback complete event first, so frontend knows it's done.
         // This prevents race conditions where frontend sends stop_playback
