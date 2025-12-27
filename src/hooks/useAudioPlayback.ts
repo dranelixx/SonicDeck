@@ -62,7 +62,6 @@ export function useAudioPlayback({
           `Ref state:`,
           Array.from(playingSoundsRef.current.entries())
         );
-        console.log(`Playing IDs:`, Array.from(playingSoundIds));
       }
 
       // Start playback - backend handles policy (restart/ignore)
@@ -131,7 +130,7 @@ export function useAudioPlayback({
         });
       }
     },
-    [device1, device2, volume, showToast, playingSoundIds]
+    [device1, device2, volume, showToast]
   );
 
   const stopAllAudio = useCallback(async () => {

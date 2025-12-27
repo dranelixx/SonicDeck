@@ -12,9 +12,6 @@ export interface AudioDevice {
 // App Settings Types
 // ============================================================================
 
-/** Playback policy for sound triggering behavior */
-export type PlaybackPolicy = "steal_newest";
-
 export interface AppSettings {
   monitor_device_id: string | null;
   broadcast_device_id: string | null;
@@ -24,7 +21,6 @@ export interface AppSettings {
   minimize_to_tray: boolean; // Close button behavior: true = minimize to tray, false = quit app
   start_minimized: boolean; // Start application minimized to tray
   autostart_enabled: boolean; // Enable autostart on system boot
-  playback_policy: PlaybackPolicy; // Policy for sound triggering (default: steal_newest)
 }
 
 // ============================================================================

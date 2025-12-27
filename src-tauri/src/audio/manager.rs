@@ -120,12 +120,18 @@ impl AudioManager {
         self.stop_senders.clone()
     }
 
-    /// Get the sound state for policy enforcement
+    /// Returns the current state of a sound for playback policy enforcement.
+    ///
+    /// Used to determine if a sound is currently decoding or playing,
+    /// which affects how new play requests for the same sound are handled.
     pub fn get_sound_state(&self, sound_id: &str) -> Option<SoundState> {
         self.active_sounds.lock().unwrap().get(sound_id).cloned()
     }
 
-    /// Register a sound as decoding (not yet audible)
+    /// Registers a sound as currently decoding (not yet audible).
+    ///
+    /// Called at the start of playback before audio streams are created.
+    /// The state transitions to `Playing` once streams are ready.
     pub fn register_sound_decoding(&self, sound_id: String, playback_id: String) {
         self.active_sounds
             .lock()
@@ -133,7 +139,10 @@ impl AudioManager {
             .insert(sound_id, SoundState::Decoding { playback_id });
     }
 
-    /// Get a clone of active_sounds Arc for use in spawned threads
+    /// Returns a thread-safe reference to the active sounds map.
+    ///
+    /// Used by playback threads to update sound state (Decoding -> Playing)
+    /// and clean up when playback completes.
     pub fn get_active_sounds(&self) -> Arc<Mutex<HashMap<String, SoundState>>> {
         self.active_sounds.clone()
     }

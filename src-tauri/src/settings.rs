@@ -8,15 +8,6 @@ use tauri::Manager;
 
 use crate::DeviceId;
 
-/// Playback policy for sound triggering behavior
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
-#[serde(rename_all = "snake_case")]
-pub enum PlaybackPolicy {
-    /// New trigger stops current playback and starts fresh (default)
-    #[default]
-    StealNewest,
-}
-
 /// Application settings for device routing and preferences
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppSettings {
@@ -40,9 +31,6 @@ pub struct AppSettings {
     /// Enable autostart on system boot
     #[serde(default)]
     pub autostart_enabled: bool,
-    /// Playback policy for sound triggering
-    #[serde(default)]
-    pub playback_policy: PlaybackPolicy,
 }
 
 fn default_volume_multiplier() -> f32 {
@@ -64,7 +52,6 @@ impl Default for AppSettings {
             minimize_to_tray: default_minimize_to_tray(),
             start_minimized: false,
             autostart_enabled: false,
-            playback_policy: PlaybackPolicy::default(),
         }
     }
 }
