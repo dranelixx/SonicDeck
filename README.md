@@ -50,6 +50,15 @@ Play sounds to two separate audio devices simultaneously (e.g., headphones + vir
 - ✅ **Phase 5**: System Integration (Global hotkeys, system tray, autostart)
 - 🚀 **Current**: Beta testing, bug fixes, polish, and community feedback
 
+### Planned Features
+- **Auto-Updater** – Seamless updates without manual reinstallation
+- **Import/Export** – Library migration via JSON/ZIP
+- **OBS Integration** – Scene-based sound triggers via WebSocket
+- **Audio Effects & Voice Changer** – EQ, Reverb, Pitch Shifting
+- **Device Profiles & Auto-Switch** – Save device setups, auto-reconnect on change
+- **Mobile Web-Remote** – Control via smartphone browser (no app install needed)
+- **Game-Aware Profiles** – Auto-switch profiles per game
+
 ## 🐛 Beta Testing & Logging
 
 **Log Files for Bug Reports:**
