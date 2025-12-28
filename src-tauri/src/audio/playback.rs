@@ -6,7 +6,7 @@ use cpal::traits::{DeviceTrait, StreamTrait};
 use cpal::{BufferSize, Device, SampleRate, Stream, StreamConfig};
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
-use tracing::{debug, error, info, warn};
+use tracing::{debug, error, info, trace, warn};
 
 use super::{AudioData, AudioError};
 
@@ -88,7 +88,7 @@ pub fn create_playback_stream(
         buffer_size = ?used_buffer_size,
         sample_format = ?sample_format,
         duration_ms = duration_ms,
-        "Playback stream created"
+        "Playback stream created and started"
     );
 
     Ok(stream)
@@ -97,7 +97,34 @@ pub fn create_playback_stream(
 /// Buffer size options for fallback strategy
 const FALLBACK_BUFFER_SIZES: [u32; 3] = [256, 512, 1024];
 
-/// Build output stream with fallback to larger buffer sizes or default config
+/// Build output stream with fallback to larger buffer sizes or default config.
+///
+/// Attempts to create a low-latency audio stream by trying multiple buffer sizes
+/// in sequence: 256 → 512 → 1024 samples. If all fixed buffer sizes fail, falls
+/// back to the device's default configuration.
+///
+/// # Arguments
+///
+/// * `device` - The audio output device
+/// * `sample_format` - Sample format (F32, I16, or U16)
+/// * `low_latency_config` - Preferred low-latency stream configuration
+/// * `default_config` - Device's default configuration (fallback)
+/// * `audio_data` - Decoded audio samples
+/// * `sample_index` - Current playback position
+/// * `volume` - Playback volume (0.0-1.0)
+/// * `end_frame` - End frame for trimmed playback
+/// * `channels` - Number of output channels
+/// * `rate_ratio` - Sample rate conversion ratio
+///
+/// # Returns
+///
+/// Returns a tuple of (Stream, buffer_size_description) on success, or AudioError
+/// if all attempts fail.
+///
+/// # Logging
+///
+/// - Warns if using a fallback buffer size larger than preferred
+/// - Warns if falling back to device default configuration
 #[allow(clippy::too_many_arguments)]
 fn build_stream_with_fallback(
     device: &Device,
@@ -135,12 +162,19 @@ fn build_stream_with_fallback(
                     warn!(
                         buffer_size = buffer_size,
                         preferred = PREFERRED_BUFFER_SIZE,
-                        "Using fallback buffer size"
+                        "Using fallback buffer size (preferred size not supported by device)"
                     );
                 }
                 return Ok((stream, format!("Fixed({})", buffer_size)));
             }
-            Err(_) => continue,
+            Err(e) => {
+                debug!(
+                    buffer_size = buffer_size,
+                    error = %e,
+                    "Failed to create stream with buffer size, trying next fallback"
+                );
+                continue;
+            }
         }
     }
 
@@ -161,7 +195,36 @@ fn build_stream_with_fallback(
     Ok((stream, "Default".to_string()))
 }
 
-/// Try to build a stream with the given config
+/// Try to build a stream with the given configuration.
+///
+/// Attempts to create a cpal output stream with the specified configuration.
+/// Handles three sample formats (F32, I16, U16) and sets up audio callbacks
+/// with volume control, sample rate conversion, and multi-channel support.
+///
+/// # Arguments
+///
+/// * `device` - The audio output device
+/// * `sample_format` - Sample format to use (F32, I16, or U16)
+/// * `config` - Stream configuration (sample rate, channels, buffer size)
+/// * `audio_data` - Decoded audio samples
+/// * `sample_index` - Current playback position (shared, mutable)
+/// * `volume` - Playback volume (shared, mutable, 0.0-1.0)
+/// * `end_frame` - End frame for trimmed playback
+/// * `channels` - Number of output channels
+/// * `rate_ratio` - Sample rate conversion ratio
+///
+/// # Returns
+///
+/// Returns the created Stream on success, or AudioError if:
+/// - The sample format is unsupported
+/// - The stream build fails (device busy, invalid config, etc.)
+///
+/// # Audio Processing
+///
+/// The audio callback performs:
+/// - Linear interpolation for sample rate conversion
+/// - Volume scaling with square root curve
+/// - Multi-channel mapping (silences extra output channels)
 #[allow(clippy::too_many_arguments)]
 fn try_build_stream(
     device: &Device,
@@ -174,7 +237,15 @@ fn try_build_stream(
     channels: usize,
     rate_ratio: f64,
 ) -> Result<Stream, AudioError> {
-    match sample_format {
+    trace!(
+        sample_format = ?sample_format,
+        buffer_size = ?config.buffer_size,
+        sample_rate = config.sample_rate.0,
+        channels = config.channels,
+        "Attempting stream build"
+    );
+
+    let stream = match sample_format {
         cpal::SampleFormat::F32 => device
             .build_output_stream(
                 config,
@@ -232,8 +303,11 @@ fn try_build_stream(
                 None,
             )
             .map_err(|e| AudioError::StreamBuild(e.to_string())),
-        _ => Err(AudioError::UnsupportedFormat),
-    }
+        _ => return Err(AudioError::UnsupportedFormat),
+    }?;
+
+    debug!(sample_format = ?sample_format, "Stream built successfully");
+    Ok(stream)
 }
 
 /// Write audio data to f32 output buffer with resampling (linear interpolation)
