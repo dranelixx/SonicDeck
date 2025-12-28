@@ -4,6 +4,58 @@
 
 Designed for gamers, streamers, and content creators who need professional audio routing with minimal latency. SonicDeck features a sleek, Discord-inspired dark theme and powerful audio management tools.
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/badge/version-0.8.0--alpha-orange)](https://github.com/DraneLixX/SonicDeck/releases)
+[![Platform](https://img.shields.io/badge/platform-Windows-blue)](https://github.com/DraneLixX/SonicDeck)
+
+> **Status:** Currently in beta testing - [Download Latest Release](https://github.com/DraneLixX/SonicDeck/releases)
+
+---
+
+## 📸 Screenshots
+
+### Main Dashboard
+![SonicDeck Dashboard](docs/screenshots/dashboard.jpg)
+*Clean, Discord-inspired dark theme with organized sound categories and waveform visualization*
+
+### Audio Trimming & Waveform Editor
+![Trim Editor](docs/screenshots/trim_editor.jpg)
+*Non-destructive audio trimming with real-time waveform preview and precise controls*
+
+### Settings & Configuration
+<details>
+<summary>Click to view all settings panels</summary>
+
+![Settings - Audio Devices](docs/screenshots/settings_1.jpg)
+*Audio device configuration with dual-output routing*
+
+![Settings - Playback & System Tray](docs/screenshots/settings_2.jpg)
+*Playback settings and system tray integration*
+
+![Settings - About](docs/screenshots/settings_3.jpg)
+*App information and external links*
+
+</details>
+
+### Hotkey Assignment
+<details>
+<summary>Click to view hotkey assignment flow</summary>
+
+![Hotkey Manager - Step 1](docs/screenshots/assing_hotkey_1.jpg)
+*Assign global hotkeys to sounds*
+
+![Hotkey Manager - Step 2](docs/screenshots/assing_hotkey_2.jpg)
+*Press any key combination to assign*
+
+![Hotkey Manager - Step 3](docs/screenshots/assing_hotkey_3.jpg)
+*Hotkey successfully assigned and saved*
+
+</details>
+
+### Sound Editing
+![Edit Sound](docs/screenshots/edit_sound.jpg)
+*Edit sound properties: name, icon, category, and volume*
+
 ---
 
 ## ✨ Features
@@ -31,9 +83,12 @@ Play sounds to two separate audio devices simultaneously (e.g., headphones + vir
 - Responsive layout with drag & drop support
 
 ### ⚡ Performance
-- **Rust Backend**: Built with `cpal` + `symphonia` for low-latency audio
+- **Low-Latency Audio Engine**: Fixed 256-sample buffer size for minimal audio delay
+- **Seamless Sound Restart**: Instant retriggering without audio gaps or clicks
+- **Rust Backend**: Built with `cpal` + `symphonia` for high-performance audio processing
 - **Thread-per-playback**: Parallel sound playback without blocking
 - **Background Decoding**: No UI freezes, even with large files
+- **Optimized React Components**: Memoization prevents unnecessary re-renders
 
 ### ⌨️ Global Hotkeys & System Integration
 - **Global Hotkeys**: Trigger sounds from anywhere with customizable keyboard shortcuts
@@ -63,12 +118,22 @@ Play sounds to two separate audio devices simultaneously (e.g., headphones + vir
 
 **Log Files for Bug Reports:**
 - Location: `%LOCALAPPDATA%\com.sonicdeck.app\logs\`
-- Format: `sonicdeck.YYYY-MM-DD.log` (e.g., `sonicdeck.2025-12-20.log`)
+- Format: `sonicdeck.YYYY-MM-DD.log` (e.g., `sonicdeck.2025-12-28.log`)
 - Daily rotation (last 7 days kept automatically)
 - Contains timestamps, thread IDs, errors, and detailed operation logs
 
-**For Testers:** If you encounter bugs, please include the relevant log file with your bug report.
-This helps immensely with debugging! See `TESTING_GUIDE.html` for detailed instructions.
+**Debug Mode for Detailed Logs:**
+To help diagnose issues, run SonicDeck with the `--debug` flag:
+- **Shortcut Method**: Right-click SonicDeck shortcut → Properties → Add `--debug` to Target field after `.exe`
+- **Command Line**: `SonicDeck.exe --debug`
+- **Result**: Enables detailed debug-level logging (device timings, cache operations, stream creation, etc.)
+
+**For Testers:** If you encounter bugs, please:
+1. Run SonicDeck with `--debug` flag to capture detailed logs
+2. Reproduce the issue
+3. Include the log file from `%LOCALAPPDATA%\com.sonicdeck.app\logs\` in your bug report
+
+See `docs/testing/TESTING_GUIDE_EN.html` for detailed instructions.
 
 ## 🎨 Looking for an Artist!
 
@@ -89,9 +154,38 @@ If you're passionate about design and want to contribute to an open-source proje
 
 ---
 
-## 🚀 Getting Started
+## 📥 Installation (For Users)
 
-> **Note**: SonicDeck is currently in **beta testing** with all core features complete. I'm actively gathering feedback and fixing bugs!
+> **Note**: SonicDeck is currently in **beta testing**. Download the latest release and help us improve!
+
+### Windows Installation
+
+1. **Download the latest release:**
+   - Go to [Releases](https://github.com/DraneLixX/SonicDeck/releases)
+   - Download `SonicDeck_X.X.X_x64-setup.exe` (NSIS installer) or `SonicDeck_X.X.X_x64_en-US.msi` (MSI installer)
+
+2. **Install:**
+   - Run the installer
+   - Follow the installation wizard
+   - Launch SonicDeck from Start Menu or Desktop shortcut
+
+3. **Enable Debug Mode (for bug reports):**
+   - Right-click SonicDeck shortcut → Properties
+   - In "Target" field, add `--debug` after `.exe`
+   - Example: `"C:\Program Files\SonicDeck\SonicDeck.exe" --debug`
+   - This enables detailed logging for troubleshooting
+
+### First Launch
+- Configure your audio devices in Settings
+- Import sounds via drag & drop
+- Assign hotkeys to your favorite sounds
+- See [Testing Guide](docs/testing/TESTING_GUIDE_EN.html) for detailed setup
+
+---
+
+## 🛠️ Development Setup
+
+> **For contributors:** Follow these steps to set up your development environment.
 
 ### Prerequisites
 
@@ -105,8 +199,8 @@ If you're passionate about design and want to contribute to an open-source proje
 1. **Clone the repository:**
 
    ```sh
-   git clone https://github.com/DraneLixX/Sonic-Deck.git
-   cd Sonic-Deck
+   git clone https://github.com/DraneLixX/SonicDeck.git
+   cd SonicDeck
    ```
 
 2. **Install frontend dependencies:**
@@ -123,15 +217,21 @@ If you're passionate about design and want to contribute to an open-source proje
 
 ## 🤝 Contributing
 
-Contributions are welcome! If you have ideas for new features, improvements, or bug fixes, please feel free to:
+Contributions are welcome! Whether you're fixing bugs, adding features, testing, or creating visual assets - we appreciate your help!
 
-1. Fork the repository.
-2. Create a new feature branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your changes (`git commit -m 'feat: Add some AmazingFeature'`).
-4. Push to the branch (`git push origin feature/AmazingFeature`).
-5. Open a Pull Request.
+**Ways to contribute:**
+- 🐛 Report bugs with detailed logs
+- 🧪 Beta test and provide feedback
+- 🎨 Create visual assets (we're looking for an artist!)
+- 💻 Submit code improvements
+- 📝 Improve documentation
 
-Please make sure your code adheres to the project's conventions and includes tests where applicable.
+**Please read [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines** on:
+- Development workflow (Git Flow)
+- Code style and conventions
+- Commit message format
+- Testing procedures
+- Community guidelines
 
 ## 📄 License
 
@@ -158,8 +258,8 @@ SonicDeck - High-Performance Desktop Soundboard
 **Developer:** Adrian Konopczynski (DraneLixX)
 - 📧 Email: adrikonop@gmail.com
 - 💬 Discord: dranelixx (ID: 624679678573150219)
-- 🐛 GitHub Issues: [Report a Bug](https://github.com/DraneLixX/Sonic-Deck/issues)
-- 🌐 Repository: [github.com/DraneLixX/Sonic-Deck](https://github.com/DraneLixX/Sonic-Deck)
+- 🐛 GitHub Issues: [Report a Bug](https://github.com/DraneLixX/SonicDeck/issues)
+- 🌐 Repository: [github.com/DraneLixX/SonicDeck](https://github.com/DraneLixX/SonicDeck)
 
 ---
 

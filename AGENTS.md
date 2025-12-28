@@ -463,6 +463,6 @@ When starting new work, check the "Now/Next/Later" note first for current priori
 
 ## Contact
 
-- GitHub Issues: <https://github.com/DraneLixX/Sonic-Deck/issues>
+- GitHub Issues: <https://github.com/DraneLixX/SonicDeck/issues>
 - Contact: Adrian Konopczynski (<adrikonop@gmail.com>)
 - Review git history: `git log --all --grep="keyword"`
