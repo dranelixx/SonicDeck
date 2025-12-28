@@ -117,8 +117,15 @@ SonicDeck is a high-performance desktop soundboard application built with:
   1. Create feature/fix branch from `develop`
   2. Make changes, commit with conventional commits
   3. Push branch and create PR to `develop`
-  4. CI runs: Frontend + Rust checks (no Claude Review)
-  5. Merge to `develop` after checks pass
+  4. **Set PR labels** for automatic release notes categorization:
+     - `feature` / `enhancement` → ✨ Features
+     - `bug` / `fix` → 🐛 Bug Fixes
+     - `performance` → ⚡ Performance
+     - `developer-tools` / `logging` / `debugging` → 🔧 Developer Experience
+     - `documentation` → 📚 Documentation
+     - `chore` / `refactor` → 🔨 Maintenance
+  5. CI runs: Frontend + Rust checks (no Claude Review)
+  6. Merge to `develop` after checks pass
 - **Release Workflow**:
   1. When ready for release: Create PR from `develop` to `main`
   2. CI runs: Frontend + Rust checks + **Claude Code Review**
@@ -131,7 +138,8 @@ SonicDeck is a high-performance desktop soundboard application built with:
 - **CI/CD**:
   - Frontend/Rust checks: Run on `main`, `develop`, `fix/**`, `feature/**`, `refactor/**` branches and PRs to `main`/`develop`
   - Claude Code Review: **Only** on PRs to `main` (saves runner minutes)
-  - Release workflow: Triggered by version tags
+  - Release workflow: Triggered by version tags, auto-generates release notes from PR labels
+  - Release notes: Configured via `.github/release.yml`, categorizes PRs by labels
 - **Merge Strategy**:
   - PRs to `develop`: **Merge commit** (preserves full commit history)
   - PRs to `main` (releases): **Squash merge** (1 clean commit, includes version bump)
