@@ -1,7 +1,7 @@
 {
   "name": "sonic-deck",
   "private": true,
-  "version": "0.8.0-0",
+  "version": "0.8.1-0",
   "type": "module",
   "license": "MIT",
   "scripts": {
@@ -33,8 +33,8 @@
     "@tauri-apps/cli": "^2.0.0",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
-    "@typescript-eslint/eslint-plugin": "^8.50.0",
-    "@typescript-eslint/parser": "^8.50.0",
+    "@typescript-eslint/eslint-plugin": "8.50.1",
+    "@typescript-eslint/parser": "8.50.1",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.16",
     "eslint": "^9.39.2",
