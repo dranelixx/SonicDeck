@@ -74,7 +74,7 @@ fn setup_logging(debug_mode: bool) -> tracing_appender::non_blocking::WorkerGuar
         .with(console_layer)
         .init();
 
-    tracing::info!("Sonic Deck v{} starting up", env!("CARGO_PKG_VERSION"));
+    tracing::info!("SonicDeck v{} starting up", env!("CARGO_PKG_VERSION"));
     tracing::info!("Logs directory: {}", logs_path.display());
 
     guard
