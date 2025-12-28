@@ -9,7 +9,10 @@ use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, Env
 ///
 /// Returns a guard that must be kept alive for the duration of the application.
 /// When dropped, the guard flushes any remaining buffered logs to disk.
-fn setup_logging() -> tracing_appender::non_blocking::WorkerGuard {
+///
+/// # Arguments
+/// * `debug_mode` - If true, enables debug-level logging (overrides default INFO level in release builds)
+fn setup_logging(debug_mode: bool) -> tracing_appender::non_blocking::WorkerGuard {
     // Get app data directory for logs
     let app_data_dir = dirs::data_local_dir()
         .unwrap_or_else(|| PathBuf::from("."))
@@ -49,14 +52,19 @@ fn setup_logging() -> tracing_appender::non_blocking::WorkerGuard {
         None
     };
 
-    // Setup log filter: INFO level by default, DEBUG for our app in dev mode
-    let filter = if cfg!(debug_assertions) {
+    // Setup log filter based on mode
+    // Priority: --debug flag > debug build > release build
+    let filter = if debug_mode {
+        // Debug mode enabled via --debug flag
         EnvFilter::try_from_default_env()
             .unwrap_or_else(|_| EnvFilter::new("sonic_deck=debug,warn"))
-    // Only debug for our crate, warn for others
+    } else if cfg!(debug_assertions) {
+        // Development build (default debug level)
+        EnvFilter::try_from_default_env()
+            .unwrap_or_else(|_| EnvFilter::new("sonic_deck=debug,warn"))
     } else {
+        // Production build (default info level)
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("sonic_deck=info,warn"))
-        // Info for our crate, warn for others
     };
 
     // Initialize subscriber with both layers
@@ -73,8 +81,17 @@ fn setup_logging() -> tracing_appender::non_blocking::WorkerGuard {
 }
 
 fn main() {
+    // Parse CLI arguments for --debug flag
+    let args: Vec<String> = std::env::args().collect();
+    let debug_mode = args.iter().any(|arg| arg == "--debug");
+
     // Keep guard alive for the entire application lifetime
     // This ensures logs are flushed when the app exits
-    let _log_guard = setup_logging();
+    let _log_guard = setup_logging(debug_mode);
+
+    if debug_mode {
+        tracing::info!("Debug mode enabled via --debug flag");
+    }
+
     sonic_deck::run();
 }
