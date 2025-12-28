@@ -31,9 +31,12 @@ Play sounds to two separate audio devices simultaneously (e.g., headphones + vir
 - Responsive layout with drag & drop support
 
 ### ⚡ Performance
-- **Rust Backend**: Built with `cpal` + `symphonia` for low-latency audio
+- **Low-Latency Audio Engine**: Fixed 256-sample buffer size for minimal audio delay
+- **Seamless Sound Restart**: Instant retriggering without audio gaps or clicks
+- **Rust Backend**: Built with `cpal` + `symphonia` for high-performance audio processing
 - **Thread-per-playback**: Parallel sound playback without blocking
 - **Background Decoding**: No UI freezes, even with large files
+- **Optimized React Components**: Memoization prevents unnecessary re-renders
 
 ### ⌨️ Global Hotkeys & System Integration
 - **Global Hotkeys**: Trigger sounds from anywhere with customizable keyboard shortcuts
@@ -63,12 +66,22 @@ Play sounds to two separate audio devices simultaneously (e.g., headphones + vir
 
 **Log Files for Bug Reports:**
 - Location: `%LOCALAPPDATA%\com.sonicdeck.app\logs\`
-- Format: `sonicdeck.YYYY-MM-DD.log` (e.g., `sonicdeck.2025-12-20.log`)
+- Format: `sonicdeck.YYYY-MM-DD.log` (e.g., `sonicdeck.2025-12-28.log`)
 - Daily rotation (last 7 days kept automatically)
 - Contains timestamps, thread IDs, errors, and detailed operation logs
 
-**For Testers:** If you encounter bugs, please include the relevant log file with your bug report.
-This helps immensely with debugging! See `TESTING_GUIDE.html` for detailed instructions.
+**Debug Mode for Detailed Logs:**
+To help diagnose issues, run SonicDeck with the `--debug` flag:
+- **Shortcut Method**: Right-click SonicDeck shortcut → Properties → Add `--debug` to Target field after `.exe`
+- **Command Line**: `SonicDeck.exe --debug`
+- **Result**: Enables detailed debug-level logging (device timings, cache operations, stream creation, etc.)
+
+**For Testers:** If you encounter bugs, please:
+1. Run SonicDeck with `--debug` flag to capture detailed logs
+2. Reproduce the issue
+3. Include the log file from `%LOCALAPPDATA%\com.sonicdeck.app\logs\` in your bug report
+
+See `docs/testing/TESTING_GUIDE_EN.html` for detailed instructions.
 
 ## 🎨 Looking for an Artist!
 
@@ -105,8 +118,8 @@ If you're passionate about design and want to contribute to an open-source proje
 1. **Clone the repository:**
 
    ```sh
-   git clone https://github.com/DraneLixX/Sonic-Deck.git
-   cd Sonic-Deck
+   git clone https://github.com/DraneLixX/SonicDeck.git
+   cd SonicDeck
    ```
 
 2. **Install frontend dependencies:**
@@ -158,8 +171,8 @@ SonicDeck - High-Performance Desktop Soundboard
 **Developer:** Adrian Konopczynski (DraneLixX)
 - 📧 Email: adrikonop@gmail.com
 - 💬 Discord: dranelixx (ID: 624679678573150219)
-- 🐛 GitHub Issues: [Report a Bug](https://github.com/DraneLixX/Sonic-Deck/issues)
-- 🌐 Repository: [github.com/DraneLixX/Sonic-Deck](https://github.com/DraneLixX/Sonic-Deck)
+- 🐛 GitHub Issues: [Report a Bug](https://github.com/DraneLixX/SonicDeck/issues)
+- 🌐 Repository: [github.com/DraneLixX/SonicDeck](https://github.com/DraneLixX/SonicDeck)
 
 ---
 
