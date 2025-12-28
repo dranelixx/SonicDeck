@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve Sonic Deck
+about: Create a report to help us improve SonicDeck
 title: '[BUG] '
 labels: bug
 assignees: ''
@@ -24,11 +24,17 @@ If applicable, add screenshots to help explain your problem.
 
 **System Information:**
  - OS: [e.g. Windows 11]
- - Sonic Deck Version: [e.g. v0.6.0-beta]
+ - SonicDeck Version: [e.g. v0.8.0-alpha]
  - Audio Devices: [Your monitor and broadcast audio devices]
+ - Debug Mode Enabled: [Yes/No - Did you run SonicDeck with `--debug` flag?]
 
 **Log Files**
 Please attach your log files from: `%LOCALAPPDATA%\com.sonicdeck.app\logs\`
+
+**For better debugging, please run SonicDeck with the `--debug` flag:**
+- Right-click SonicDeck shortcut → Properties → Add `--debug` to Target field after `.exe`
+- Or run from command line: `SonicDeck.exe --debug`
+- This enables detailed debug logging that helps us identify issues faster!
 
 **Additional context**
 Add any other context about the problem here.

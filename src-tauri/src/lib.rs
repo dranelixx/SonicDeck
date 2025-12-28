@@ -5,6 +5,7 @@
 mod audio;
 mod commands;
 mod hotkeys;
+mod persistence;
 mod settings;
 mod sounds;
 mod state;
@@ -38,6 +39,10 @@ fn normalize_hotkey_string(hotkey: &str) -> String {
                 key if key.starts_with("numpad") => {
                     format!("NumPad{}", capitalize_first(&key[6..]))
                 }
+                // Handle Digit keys: digit0 -> 0, digit1 -> 1, etc.
+                key if key.starts_with("digit") => key[5..].to_string(),
+                // Handle Key prefix: keya -> A, keyb -> B, etc.
+                key if key.starts_with("key") => key[3..].to_uppercase(),
                 // Capitalize first letter for all other keys
                 other => capitalize_first(other),
             }
@@ -169,17 +174,36 @@ fn handle_global_shortcut(
         volume,
         sound.trim_start_ms,
         sound.trim_end_ms,
+        Some(sound.id.as_str().to_owned()),
         manager,
         app.clone(),
     ) {
-        Ok(playback_id) => {
-            tracing::info!(
-                "Hotkey '{}' triggered sound '{}' (playback: {})",
-                normalized_hotkey,
-                sound.name,
-                playback_id
-            );
-        }
+        Ok(result) => match result.action.as_str() {
+            "ignored" => {
+                tracing::debug!(
+                    "Hotkey '{}' ignored - sound '{}' already playing",
+                    normalized_hotkey,
+                    sound.name
+                );
+            }
+            "restarted" => {
+                tracing::info!(
+                    "Hotkey '{}' restarted sound '{}' (playback: {:?}, stopped: {:?})",
+                    normalized_hotkey,
+                    sound.name,
+                    result.playback_id,
+                    result.stopped_playback_id
+                );
+            }
+            _ => {
+                tracing::info!(
+                    "Hotkey '{}' triggered sound '{}' (playback: {:?})",
+                    normalized_hotkey,
+                    sound.name,
+                    result.playback_id
+                );
+            }
+        },
         Err(e) => {
             tracing::error!("Failed to play sound from hotkey: {}", e);
         }
@@ -267,6 +291,7 @@ pub fn run() {
             commands::stop_playback,
             commands::clear_audio_cache,
             commands::get_cache_stats,
+            commands::preload_sounds,
             commands::get_logs_path,
             commands::read_logs,
             commands::clear_logs,
@@ -369,6 +394,26 @@ pub fn run() {
             }
 
             Ok(())
+        })
+        .on_window_event(|window, event| {
+            // Handle window close button based on minimize_to_tray setting
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                let app = window.app_handle();
+                let state = app.state::<AppState>();
+                let settings = state.read_settings();
+                let minimize_to_tray = settings.minimize_to_tray;
+                drop(settings);
+
+                if minimize_to_tray {
+                    // Minimize to tray instead of closing
+                    api.prevent_close();
+                    let _ = window.hide();
+                    info!("Window minimized to tray (X button)");
+                } else {
+                    // Allow normal close
+                    info!("Window closing (minimize_to_tray disabled)");
+                }
+            }
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,11 +1,54 @@
 # Changelog
 
-All notable changes to Sonic Deck are documented in this file.
+All notable changes to SonicDeck are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.8.0-alpha] - 2025-12-28
+
+### Added
+- **Low-latency audio engine** with fixed buffer size (256 samples) for improved responsiveness
+- **Seamless sound restart behavior** - sounds can be retriggered instantly without audio gaps
+- **`--debug` launch flag** for beta testers - enables detailed debug logging in production builds
+- Comprehensive tracing instrumentation for audio hotpaths (playback, decoding, caching)
+- Performance logging for device enumeration timing (avg ~235ms)
+- Performance logging for waveform generation timing (linear scaling ~1.4ms/second)
+- Sample rate conversion logging for quality analysis (INFO-level when resampling occurs)
+- Dry-run mode for `sync-version.js` script with `--dry-run` flag
+- SemVer validation to `sync-version.js` to prevent invalid version formats
+
+### Changed
+- **Product rebranding**: Officially renamed to "SonicDeck" (removed space from "Sonic Deck")
+- Data directory consolidation for cleaner file organization
+- Updated all markdown documentation and branding materials to reflect new name
+- Bug report template now requests `--debug` flag usage for better diagnostics
+
+### Fixed
+- System tray close behavior now works correctly
+- Hotkeys are now automatically removed when deleting associated sounds
+- Atomic JSON persistence prevents corrupted settings files on write failures
+- Multi-channel audio device mapping (5.1, 7.1 surround) now correctly routes to stereo output
+- Hotkey display normalization: "Digit" and "Key" prefixes properly formatted
+
+### Performance
+- Memoized `SoundButton` component to prevent unnecessary re-renders (50+ buttons → only 1 re-renders on click)
+- Comprehensive performance instrumentation across audio pipeline
+- Background audio decoding prevents UI blocking
+
+### Technical
+- Added structured logging with `tracing` crate throughout audio pipeline
+- Implemented non-blocking file logging with daily rotation (7-day retention)
+- Enhanced error handling and logging for device enumeration failures
+- Improved audio stream creation with detailed timing metrics
+- CLI argument parsing for runtime debug mode control
+
+### Known Issues
+- Hotkey multi-trigger on rapid key press (minimal cooldown of 15ms implemented)
+
+---
 
 ## [0.7.0-alpha] - 2025-12-24
 

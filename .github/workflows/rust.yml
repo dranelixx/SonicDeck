@@ -1,16 +1,8 @@
 name: Rust Checks
 
 on:
-  push:
-    branches: [ main, 'fix/**', 'feature/**', 'refactor/**' ]
-    paths:
-      - 'src-tauri/**'
-      - 'src/**'
-      - 'package.json'
-      - 'yarn.lock'
-      - '.github/workflows/rust.yml'
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
   quality:

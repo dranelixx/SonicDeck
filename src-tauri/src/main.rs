@@ -5,7 +5,14 @@ use std::path::PathBuf;
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
-fn setup_logging() {
+/// Sets up non-blocking file logging with daily rotation.
+///
+/// Returns a guard that must be kept alive for the duration of the application.
+/// When dropped, the guard flushes any remaining buffered logs to disk.
+///
+/// # Arguments
+/// * `debug_mode` - If true, enables debug-level logging (overrides default INFO level in release builds)
+fn setup_logging(debug_mode: bool) -> tracing_appender::non_blocking::WorkerGuard {
     // Get app data directory for logs
     let app_data_dir = dirs::data_local_dir()
         .unwrap_or_else(|| PathBuf::from("."))
@@ -19,8 +26,6 @@ fn setup_logging() {
     let logs_path = app_data_dir.clone();
 
     // Create file appender with daily rotation (keeps last 7 days)
-    // We use empty prefix and "log" suffix to get format: YYYY-MM-DD.log
-    // Then we'll manually rename or use a custom wrapper
     let file_appender = RollingFileAppender::builder()
         .rotation(Rotation::DAILY)
         .filename_prefix("sonicdeck")
@@ -29,9 +34,13 @@ fn setup_logging() {
         .build(&app_data_dir)
         .expect("Failed to create log appender");
 
-    // Create file layer
+    // Wrap in non-blocking writer to prevent I/O from blocking audio threads
+    // The guard must be kept alive - dropping it flushes remaining logs
+    let (non_blocking, guard) = tracing_appender::non_blocking(file_appender);
+
+    // Create file layer with non-blocking writer
     let file_layer = fmt::layer()
-        .with_writer(file_appender)
+        .with_writer(non_blocking)
         .with_ansi(false) // No color codes in log files
         .with_target(true)
         .with_thread_ids(true);
@@ -43,14 +52,19 @@ fn setup_logging() {
         None
     };
 
-    // Setup log filter: INFO level by default, DEBUG for our app in dev mode
-    let filter = if cfg!(debug_assertions) {
+    // Setup log filter based on mode
+    // Priority: --debug flag > debug build > release build
+    let filter = if debug_mode {
+        // Debug mode enabled via --debug flag
         EnvFilter::try_from_default_env()
             .unwrap_or_else(|_| EnvFilter::new("sonic_deck=debug,warn"))
-    // Only debug for our crate, warn for others
+    } else if cfg!(debug_assertions) {
+        // Development build (default debug level)
+        EnvFilter::try_from_default_env()
+            .unwrap_or_else(|_| EnvFilter::new("sonic_deck=debug,warn"))
     } else {
+        // Production build (default info level)
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("sonic_deck=info,warn"))
-        // Info for our crate, warn for others
     };
 
     // Initialize subscriber with both layers
@@ -60,11 +74,24 @@ fn setup_logging() {
         .with(console_layer)
         .init();
 
-    tracing::info!("Sonic Deck v{} starting up", env!("CARGO_PKG_VERSION"));
+    tracing::info!("SonicDeck v{} starting up", env!("CARGO_PKG_VERSION"));
     tracing::info!("Logs directory: {}", logs_path.display());
+
+    guard
 }
 
 fn main() {
-    setup_logging();
+    // Parse CLI arguments for --debug flag
+    let args: Vec<String> = std::env::args().collect();
+    let debug_mode = args.iter().any(|arg| arg == "--debug");
+
+    // Keep guard alive for the entire application lifetime
+    // This ensures logs are flushed when the app exits
+    let _log_guard = setup_logging(debug_mode);
+
+    if debug_mode {
+        tracing::info!("Debug mode enabled via --debug flag");
+    }
+
     sonic_deck::run();
 }

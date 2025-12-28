@@ -1,6 +1,6 @@
 # Version Management
 
-Sonic Deck uses a centralized version system to keep all version strings in sync across the project.
+SonicDeck uses a centralized version system to keep all version strings in sync across the project.
 
 ## How to Bump the Version
 
@@ -35,7 +35,7 @@ Sonic Deck uses a centralized version system to keep all version strings in sync
 
 **Problem:** MSI installers (Windows) only accept **numeric** pre-release identifiers. Alphanumeric versions like `0.3.0-alpha` cause build failures.
 
-**Solution:** Sonic Deck uses a **dual-version system**:
+**Solution:** SonicDeck uses a **dual-version system**:
 
 | Component | Format | Example | Purpose |
 |-----------|--------|---------|---------|

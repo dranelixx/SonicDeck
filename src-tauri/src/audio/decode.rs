@@ -3,6 +3,7 @@
 //! Supports MP3, WAV, OGG Vorbis, and MP4/M4A formats.
 
 use std::fs::File;
+use std::time::Instant;
 use symphonia::core::audio::SampleBuffer;
 use symphonia::core::codecs::DecoderOptions;
 use symphonia::core::errors::Error as SymphoniaError;
@@ -10,12 +11,15 @@ use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::Hint;
-use tracing::warn;
+use tracing::{debug, warn};
 
 use super::{AudioData, AudioError};
 
 /// Decode an audio file to raw PCM samples
 pub fn decode_audio_file(file_path: &str) -> Result<AudioData, AudioError> {
+    let start = Instant::now();
+    debug!(file_path = %file_path, "Starting audio decode");
+
     let file = File::open(file_path)?;
 
     let media_source = MediaSourceStream::new(Box::new(file), Default::default());
@@ -80,6 +84,18 @@ pub fn decode_audio_file(file_path: &str) -> Result<AudioData, AudioError> {
     if samples.is_empty() {
         return Err(AudioError::NoData);
     }
+
+    let duration_ms = start.elapsed().as_millis();
+    let duration_secs = samples.len() as f64 / (sample_rate as f64 * channels as f64);
+    debug!(
+        file_path = %file_path,
+        duration_ms = duration_ms,
+        sample_count = samples.len(),
+        sample_rate = sample_rate,
+        channels = channels,
+        audio_duration_secs = format!("{:.2}", duration_secs),
+        "Audio decode complete"
+    );
 
     Ok(AudioData {
         samples,
