@@ -181,6 +181,7 @@ pub fn play_dual_output(
         // This thread owns the streams - no Send issues!
         let host = cpal::default_host();
 
+        let enum_start = Instant::now();
         let output_devices: Vec<_> = match host.output_devices() {
             Ok(devices) => devices.collect(),
             Err(e) => {
@@ -194,6 +195,13 @@ pub fn play_dual_output(
                 return;
             }
         };
+
+        let enum_duration = enum_start.elapsed().as_millis();
+        debug!(
+            duration_ms = enum_duration,
+            device_count = output_devices.len(),
+            "Device enumeration complete"
+        );
 
         // Parse device indices
         let (idx1, idx2) = match (device_id_1.index(), device_id_2.index()) {
