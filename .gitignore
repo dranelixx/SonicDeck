@@ -60,3 +60,4 @@ tmp_rovodev_*
 # Coverage
 /src-tauri/lcov.info
 /src-tauri/coverage-html/
+/coverage/
