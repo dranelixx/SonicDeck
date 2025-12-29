@@ -437,6 +437,9 @@ cd src-tauri && cargo test
 - `audio/playback.rs` - Volume curve, linear interpolation
 - `audio/mod.rs` - DeviceId parsing and formatting
 - `persistence.rs` - Atomic file writes
+- `sounds.rs` - Sound/Category CRUD, SoundId/CategoryId, UUID generation
+- `settings.rs` - AppSettings defaults, serialization, DeviceId integration
+- `hotkeys.rs` - HotkeyMappings CRUD, sound-hotkey associations
 
 **Integration Tests** (`src-tauri/tests/`):
 - `audio_decode.rs` - Test fixture validation (MP3, OGG, M4A)
@@ -446,27 +449,55 @@ cd src-tauri && cargo test
 - `test_stereo.ogg` - 1s, 48kHz, Stereo
 - `test_stereo.m4a` - 1s, 48kHz, Stereo
 
+### Automated Tests (Frontend)
+
+Run all tests:
+```bash
+yarn test        # Watch mode
+yarn test:run    # Single run
+yarn test:coverage  # With coverage
+```
+
+**Unit Tests** (Vitest + Testing Library):
+- `src/utils/hotkeyDisplay.test.ts` - Hotkey formatting and parsing
+- `src/utils/waveformQueue.test.ts` - Waveform queue logic with mocked Tauri invoke
+
+**Test Setup** (`src/test/setup.ts`):
+- Mocks for Tauri API (`@tauri-apps/api/core`, `@tauri-apps/api/event`)
+- Mocks for browser APIs (`matchMedia`, `ResizeObserver`)
+
 ### Code Coverage
 
-**Tool:** cargo-llvm-cov (LLVM-based source coverage)
-
-**Run locally:**
+**Rust Coverage:** cargo-llvm-cov (LLVM-based source coverage)
 ```bash
 # Generate coverage report (opens in browser)
 cd src-tauri && cargo llvm-cov --html --open
 
 # With threshold check (same as CI)
-cd src-tauri && cargo llvm-cov --fail-under-lines 70
+cd src-tauri && cargo llvm-cov --fail-under-lines 45
 
 # Generate LCOV report
 cd src-tauri && cargo llvm-cov --lcov --output-path lcov.info
 ```
 
+**Frontend Coverage:** @vitest/coverage-v8
+```bash
+yarn test:coverage
+```
+
 **CI Integration:**
-- Coverage is automatically generated on PRs
-- Minimum threshold: 20% line coverage (will be raised as more tests are added)
+- Rust and Frontend coverage automatically generated on PRs
+- Rust threshold: 45% line coverage
+- Frontend threshold: 5% line coverage (will be raised as more tests are added)
 - Reports on Codecov: https://codecov.io/gh/dranelixx/SonicDeck
 - HTML reports available as CI artifacts
+
+### CI Workflow Structure
+
+- **rust.yml**: Fast quality checks (fmt, clippy, check) - no tests
+- **tests.yml**: Full test suite + coverage (Rust + Frontend)
+- **frontend.yml**: Prettier, ESLint, TypeScript checks
+- **claude-code-review.yml**: AI code review on PRs to main
 
 ### Pre-Commit Checklist (Auto-enforced by Husky)
 
