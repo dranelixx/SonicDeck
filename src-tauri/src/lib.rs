@@ -332,6 +332,10 @@ pub fn run() {
             commands::enable_microphone_routing,
             commands::disable_microphone_routing,
             commands::get_microphone_routing_status,
+            // VB-Cable uninstall command
+            commands::start_vb_cable_uninstall,
+            // Sound settings command
+            commands::open_sound_settings,
         ])
         .setup(|app| {
             // Initialize app state (load all data from disk once at startup)

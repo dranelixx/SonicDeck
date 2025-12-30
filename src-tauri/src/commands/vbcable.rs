@@ -2,8 +2,8 @@
 
 use crate::vbcable::{
     cleanup_temp_files, detect_vb_cable, disable_routing, enable_routing, get_routing_status,
-    install_vbcable, list_capture_devices, wait_for_vb_cable, DefaultDeviceManager, SavedDefaults,
-    VbCableStatus,
+    install_vbcable, list_capture_devices, uninstall_vbcable, wait_for_vb_cable,
+    DefaultDeviceManager, SavedDefaults, VbCableStatus,
 };
 use tracing::info;
 
@@ -141,4 +141,31 @@ pub fn disable_microphone_routing() -> Result<(), String> {
 #[tauri::command]
 pub fn get_microphone_routing_status() -> Option<String> {
     get_routing_status()
+}
+
+// ============================================================================
+// VB-Cable Uninstall Command
+// ============================================================================
+
+/// Uninstall VB-Cable
+///
+/// Downloads the installer if not cached and runs it with -u flag for uninstall.
+/// Will trigger UAC prompt for admin rights.
+#[tauri::command]
+pub fn start_vb_cable_uninstall() -> Result<(), String> {
+    info!("Starting VB-Cable uninstallation from frontend request");
+    uninstall_vbcable()
+}
+
+// ============================================================================
+// Sound Settings Command
+// ============================================================================
+
+/// Open Windows Sound Control Panel (mmsys.cpl)
+///
+/// Opens the classic Windows Sound settings where users can manage audio devices.
+#[tauri::command]
+pub fn open_sound_settings() -> Result<(), String> {
+    info!("Opening Windows Sound settings (mmsys.cpl)");
+    open::that("mmsys.cpl").map_err(|e| format!("Failed to open sound settings: {}", e))
 }

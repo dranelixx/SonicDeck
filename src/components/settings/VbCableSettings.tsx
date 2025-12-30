@@ -13,6 +13,7 @@ export default function VbCableSettings({
 }: VbCableSettingsProps) {
   const [status, setStatus] = useState<VbCableStatus | null>(null);
   const [isInstalling, setIsInstalling] = useState(false);
+  const [isUninstalling, setIsUninstalling] = useState(false);
   const [installStep, setInstallStep] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
@@ -41,9 +42,14 @@ export default function VbCableSettings({
         setSelectedMicrophone(routingStatus);
       } else {
         setIsRoutingActive(false);
-        // Restore from settings if available
+        // Restore from settings if available AND microphone still exists
         if (settings?.microphone_routing_device_id) {
-          setSelectedMicrophone(settings.microphone_routing_device_id);
+          const micExists = mics.some(
+            ([id]) => id === settings.microphone_routing_device_id
+          );
+          if (micExists) {
+            setSelectedMicrophone(settings.microphone_routing_device_id);
+          }
         }
       }
     } catch (e) {
@@ -213,6 +219,61 @@ export default function VbCableSettings({
     }
   };
 
+  const handleUninstall = async () => {
+    setIsUninstalling(true);
+    setError(null);
+
+    try {
+      // Step 1: Disable microphone routing if active
+      if (isRoutingActive) {
+        setInstallStep("Stopping microphone routing...");
+        await invoke("disable_microphone_routing");
+        setIsRoutingActive(false);
+      }
+
+      // Step 2: Clear broadcast device setting
+      if (settings?.broadcast_device_id) {
+        setInstallStep("Clearing VB-Cable settings...");
+        await saveSettings({
+          ...settings,
+          broadcast_device_id: null,
+          microphone_routing_enabled: false,
+          microphone_routing_device_id: null,
+        });
+      }
+
+      // Step 3: Run uninstaller
+      setInstallStep("Uninstalling VB-Cable...");
+      await invoke("start_vb_cable_uninstall");
+
+      // Step 4: Refresh device list
+      setInstallStep("Refreshing devices...");
+      await refreshDevices();
+      onDeviceChange?.();
+
+      // Step 5: Check status
+      const newStatus = await invoke<VbCableStatus>("check_vb_cable_status");
+      setStatus(newStatus);
+
+      setInstallStep("");
+    } catch (e) {
+      setError(`Uninstallation failed: ${e}`);
+      setInstallStep("");
+    } finally {
+      setIsUninstalling(false);
+    }
+  };
+
+  const handleOpenSoundSettings = async () => {
+    // Open Windows classic sound control panel (mmsys.cpl)
+    // ms-settings:sound doesn't work with window.open, need shell command
+    try {
+      await invoke("open_sound_settings");
+    } catch (e) {
+      console.error("Failed to open sound settings:", e);
+    }
+  };
+
   return (
     <div className="bg-discord-dark rounded-lg p-6">
       <h3 className="text-lg font-semibold text-discord-text mb-3">
@@ -283,6 +344,60 @@ export default function VbCableSettings({
             {isRoutingActive && (
               <p className="mt-2 text-xs text-discord-success">
                 Microphone is being routed to CABLE Input
+              </p>
+            )}
+          </div>
+
+          {/* Tip: CABLE In 16 Ch Device */}
+          <div className="pt-4 border-t border-discord-darker">
+            <h4 className="text-sm font-medium text-discord-text mb-2">
+              Tip: Hide "CABLE In 16 Ch"
+            </h4>
+            <p className="text-xs text-discord-text-muted mb-2">
+              VB-Cable installs an additional device that is not needed. You can
+              disable it in Windows Sound settings:
+            </p>
+            <ol className="text-xs text-discord-text-muted mb-3 list-decimal list-inside space-y-1">
+              <li>
+                Click{" "}
+                <button
+                  onClick={handleOpenSoundSettings}
+                  className="text-discord-primary hover:underline"
+                >
+                  Open Sound Settings
+                </button>
+              </li>
+              <li>Find "CABLE In 16 Ch" in the Playback tab</li>
+              <li>Right-click → Disable</li>
+              <li>Click OK to save changes</li>
+            </ol>
+          </div>
+
+          {/* Uninstall Section */}
+          <div className="pt-4 border-t border-discord-darker">
+            <h4 className="text-sm font-medium text-discord-text mb-2">
+              Uninstall VB-Cable
+            </h4>
+            <p className="text-xs text-discord-text-muted mb-3">
+              Removes VB-Cable and all related settings.
+            </p>
+            <button
+              onClick={handleUninstall}
+              disabled={isUninstalling || isRoutingActive}
+              className="px-4 py-2 bg-discord-danger hover:bg-discord-danger/80
+                       disabled:bg-gray-600 disabled:cursor-not-allowed rounded
+                       text-white font-medium text-sm transition-colors"
+            >
+              {isUninstalling ? "Uninstalling..." : "Uninstall VB-Cable"}
+            </button>
+            {isRoutingActive && (
+              <p className="mt-2 text-xs text-discord-warning">
+                Please disable Microphone Routing first.
+              </p>
+            )}
+            {isUninstalling && installStep && (
+              <p className="mt-2 text-xs text-discord-text-muted">
+                {installStep}
               </p>
             )}
           </div>

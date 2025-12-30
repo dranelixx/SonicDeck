@@ -17,7 +17,7 @@ None
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Test Coverage** - Expand Rust and Frontend tests for a solid foundation
-- [ ] **Phase 2: VB-Cable Integration** - Auto-detection and silent install for Discord routing
+- [x] **Phase 2: VB-Cable Integration** - Auto-detection and silent install for Discord routing
 - [ ] **Phase 3: Audio Core Polish** - Volume Engine V2 and LUFS normalization
 - [ ] **Phase 4: Auto-Updater** - Seamless updates via Tauri updater
 - [ ] **Phase 5: Import/Export** - Sound library as JSON/ZIP with atomic persistence
@@ -99,7 +99,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Test Coverage | 3/3 | Complete | 2025-12-29 |
-| 2. VB-Cable Integration | 4/5 | In progress | - |
+| 2. VB-Cable Integration | 5/5 | Complete | 2025-12-30 |
 | 3. Audio Core Polish | 0/TBD | Not started | - |
 | 4. Auto-Updater | 0/TBD | Not started | - |
 | 5. Import/Export | 0/TBD | Not started | - |

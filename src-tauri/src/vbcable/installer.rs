@@ -211,3 +211,109 @@ pub fn cleanup_temp_files() {
         }
     }
 }
+
+/// Launch VB-Cable uninstaller with admin elevation (UAC prompt) and wait for completion
+///
+/// Uses the same installer executable with -u flag for uninstall.
+fn launch_uninstaller(installer_path: &PathBuf) -> Result<(), String> {
+    info!(
+        "Launching VB-Cable uninstaller with elevation: {:?}",
+        installer_path
+    );
+
+    // Convert strings to wide strings for Windows API
+    let operation: Vec<u16> = "runas\0".encode_utf16().collect();
+    let file: Vec<u16> = installer_path
+        .to_string_lossy()
+        .encode_utf16()
+        .chain(std::iter::once(0))
+        .collect();
+    // Flags: -u (uninstall), -h (headless/silent)
+    let parameters: Vec<u16> = "-u -h\0".encode_utf16().collect();
+    let directory: Vec<u16> = installer_path
+        .parent()
+        .map(|p| p.to_string_lossy().to_string())
+        .unwrap_or_default()
+        .encode_utf16()
+        .chain(std::iter::once(0))
+        .collect();
+
+    debug!(
+        "ShellExecuteExW: operation=runas, file={:?}, params=-u -h",
+        installer_path
+    );
+
+    // Setup SHELLEXECUTEINFOW structure
+    let mut sei = SHELLEXECUTEINFOW {
+        cbSize: std::mem::size_of::<SHELLEXECUTEINFOW>() as u32,
+        fMask: SEE_MASK_NOCLOSEPROCESS, // Keep process handle so we can wait
+        hwnd: HWND::default(),
+        lpVerb: PCWSTR::from_raw(operation.as_ptr()),
+        lpFile: PCWSTR::from_raw(file.as_ptr()),
+        lpParameters: PCWSTR::from_raw(parameters.as_ptr()),
+        lpDirectory: PCWSTR::from_raw(directory.as_ptr()),
+        nShow: SW_SHOWNORMAL.0,
+        ..Default::default()
+    };
+
+    // Launch with elevation
+    let result = unsafe { ShellExecuteExW(&mut sei) };
+
+    if let Err(e) = result {
+        error!("ShellExecuteExW failed: {}", e);
+        return Err(format!("Failed to launch uninstaller: {}", e));
+    }
+
+    // Wait for the uninstaller to complete
+    if !sei.hProcess.is_invalid() {
+        info!("Waiting for VB-Cable uninstaller to complete...");
+
+        let wait_result = unsafe { WaitForSingleObject(sei.hProcess, INFINITE) };
+
+        if wait_result == WAIT_OBJECT_0 {
+            info!("VB-Cable uninstaller completed");
+        } else {
+            warn!("WaitForSingleObject returned: {:?}", wait_result);
+        }
+
+        // Close the process handle
+        unsafe {
+            let _ = windows::Win32::Foundation::CloseHandle(sei.hProcess);
+        }
+    } else {
+        warn!("No process handle returned - uninstaller may have failed to start");
+    }
+
+    Ok(())
+}
+
+/// Full uninstallation flow: download installer (if needed), extract, launch with -u flag
+pub fn uninstall_vbcable() -> Result<(), String> {
+    info!("Starting VB-Cable uninstallation flow");
+
+    // Check if installer already exists in temp directory
+    let temp_dir = std::env::temp_dir().join("sonicdeck_vbcable");
+    let installer_path = temp_dir.join(VBCABLE_INSTALLER_NAME);
+
+    let final_installer_path = if installer_path.exists() {
+        info!("Using existing installer at {:?}", installer_path);
+        installer_path
+    } else {
+        // Need to download the installer first
+        info!("Installer not found, downloading...");
+        let zip_path = download_vbcable()?;
+        let path = extract_installer(&zip_path)?;
+
+        // Cleanup ZIP
+        if let Err(e) = fs::remove_file(&zip_path) {
+            warn!("Failed to cleanup ZIP file: {}", e);
+        }
+
+        path
+    };
+
+    launch_uninstaller(&final_installer_path)?;
+
+    info!("VB-Cable uninstallation flow completed");
+    Ok(())
+}
