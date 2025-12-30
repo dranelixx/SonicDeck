@@ -31,6 +31,24 @@ tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
 tracing-appender = "0.2"
 dirs = "5.0"
 
+# VB-Cable integration dependencies
+com-policy-config = "0.6"
+reqwest = { version = "0.12", features = ["blocking"] }
+zip = "7.0"
+open = "5.3"
+
+[dependencies.windows]
+version = "0.61"
+features = [
+    "Win32_Foundation",
+    "Win32_Media_Audio",
+    "Win32_System_Com",
+    "Win32_System_Registry",
+    "Win32_System_Threading",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+]
+
 [dev-dependencies]
 tempfile = "3.10"
 
