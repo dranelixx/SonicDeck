@@ -104,10 +104,15 @@ struct RingBuffer {
 }
 
 impl RingBuffer {
+    /// Create a new ring buffer with prefilled silence
+    ///
+    /// Prefills half the buffer with silence so the output stream
+    /// never "starves" waiting for input data. This prevents
+    /// audio glitches at stream startup (industry standard practice).
     fn new(capacity: usize) -> Self {
         Self {
             buffer: vec![0.0; capacity],
-            write_pos: 0,
+            write_pos: capacity / 2, // Start ahead to prevent underruns
             read_pos: 0,
             capacity,
         }
@@ -197,10 +202,17 @@ pub fn enable_routing(microphone_id: &str) -> Result<(), String> {
     let output_channels = output_config.channels();
     let sample_rate = input_config.sample_rate();
 
+    // Calculate buffer size for ~100ms latency (balance between latency and stability)
+    // Formula: sample_rate * channels / 10 (100ms = 1/10 second)
+    // Note: 50ms was too aggressive and caused audio glitches
+    let buffer_size = (sample_rate.0 as usize * input_channels as usize / 10).max(4096);
+    debug!(
+        "Ring buffer size: {} samples (~100ms at {} Hz, {} ch)",
+        buffer_size, sample_rate.0, input_channels
+    );
+
     // Spawn routing thread
     let thread_handle = thread::spawn(move || {
-        // Create ring buffer for audio transfer (1 second buffer at 48kHz stereo)
-        let buffer_size = 48000 * 2;
         let ring_buffer = Arc::new(Mutex::new(RingBuffer::new(buffer_size)));
         let ring_buffer_input = ring_buffer.clone();
         let ring_buffer_output = ring_buffer;
@@ -375,13 +387,29 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_ring_buffer_basic() {
+    fn test_ring_buffer_prefill() {
+        let buffer = RingBuffer::new(10);
+
+        // Buffer should be prefilled with write_pos ahead of read_pos
+        assert_eq!(buffer.write_pos, 5); // capacity / 2
+        assert_eq!(buffer.read_pos, 0);
+
+        // Buffer contains silence (0.0)
+        assert!(buffer.buffer.iter().all(|&x| x == 0.0));
+    }
+
+    #[test]
+    fn test_ring_buffer_write_read() {
         let mut buffer = RingBuffer::new(10);
 
-        // Write some samples
+        // Skip prefilled silence first (5 samples)
+        let mut prefill = [0.0; 5];
+        buffer.read(&mut prefill);
+        assert!(prefill.iter().all(|&x| x == 0.0));
+
+        // Now write and read should be in sync
         buffer.write(&[1.0, 2.0, 3.0]);
 
-        // Read them back
         let mut output = [0.0; 3];
         buffer.read(&mut output);
 
@@ -390,9 +418,13 @@ mod tests {
 
     #[test]
     fn test_ring_buffer_wrap() {
-        let mut buffer = RingBuffer::new(4);
+        let mut buffer = RingBuffer::new(8);
 
-        // Write and read multiple times to wrap around
+        // Skip prefilled silence (4 samples)
+        let mut prefill = [0.0; 4];
+        buffer.read(&mut prefill);
+
+        // Write and read multiple times to test wrap-around
         buffer.write(&[1.0, 2.0]);
         let mut out1 = [0.0; 2];
         buffer.read(&mut out1);

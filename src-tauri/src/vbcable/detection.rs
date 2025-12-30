@@ -27,27 +27,6 @@ pub enum VbCableStatus {
     NotInstalled,
 }
 
-/// Quick check if VB-Cable is installed
-///
-/// Returns true if any output device contains "cable input" in its name.
-pub fn is_vb_cable_installed() -> bool {
-    let host = cpal::default_host();
-
-    if let Ok(devices) = host.output_devices() {
-        for device in devices {
-            if let Ok(name) = device.name() {
-                if name.to_lowercase().contains("cable input") {
-                    debug!("VB-Cable detected: {}", name);
-                    return true;
-                }
-            }
-        }
-    }
-
-    debug!("VB-Cable not detected");
-    false
-}
-
 /// Full VB-Cable detection with device info
 ///
 /// Searches for both the output device (CABLE Input) and input device (CABLE Output).

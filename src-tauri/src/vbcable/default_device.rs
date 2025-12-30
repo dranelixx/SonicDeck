@@ -54,16 +54,6 @@ impl DefaultDeviceManager {
         self.saved_device_id.clone()
     }
 
-    /// Restore the saved device as the default
-    ///
-    /// Call this after VB-Cable installation completes to restore the user's original default.
-    pub fn restore_default(&self) -> Result<(), String> {
-        match &self.saved_device_id {
-            Some(device_id) => Self::restore_device(device_id),
-            None => Err("No device saved to restore".to_string()),
-        }
-    }
-
     /// Restore a specific device as the default (static method)
     ///
     /// Used when the device ID is stored externally (e.g., in frontend state).
@@ -270,15 +260,5 @@ mod tests {
             manager.get_saved_device_id(),
             Some("test-device-id".to_string())
         );
-    }
-
-    #[test]
-    fn test_restore_without_saved_device() {
-        let manager = DefaultDeviceManager {
-            saved_device_id: None,
-        };
-        let result = manager.restore_default();
-        assert!(result.is_err());
-        assert!(result.unwrap_err().contains("No device saved"));
     }
 }
