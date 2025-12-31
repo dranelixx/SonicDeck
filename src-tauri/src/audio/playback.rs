@@ -348,6 +348,7 @@ fn try_build_stream(
 }
 
 /// Write audio data to f32 output buffer with resampling (linear interpolation)
+#[allow(clippy::too_many_arguments)]
 fn write_audio_f32(
     output: &mut [f32],
     audio_data: &AudioData,
@@ -409,6 +410,7 @@ fn write_audio_f32(
 }
 
 /// Write audio data to i16 output buffer with resampling (linear interpolation)
+#[allow(clippy::too_many_arguments)]
 fn write_audio_i16(
     output: &mut [i16],
     audio_data: &AudioData,
@@ -470,6 +472,7 @@ fn write_audio_i16(
 }
 
 /// Write audio data to u16 output buffer with resampling (linear interpolation)
+#[allow(clippy::too_many_arguments)]
 fn write_audio_u16(
     output: &mut [u16],
     audio_data: &AudioData,
