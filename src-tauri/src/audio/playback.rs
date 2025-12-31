@@ -15,12 +15,19 @@ use super::{AudioData, AudioError};
 const PREFERRED_BUFFER_SIZE: u32 = 256;
 
 /// Create and start a playback stream on a specific device
+///
+/// # LUFS Normalization
+///
+/// When `lufs_gain` is provided (non-1.0), it is applied multiplicatively
+/// with the volume. This allows for loudness normalization across sounds.
+/// The gain is calculated once at stream creation (not per-sample) for performance.
 pub fn create_playback_stream(
     device: &Device,
     audio_data: Arc<AudioData>,
     volume: Arc<Mutex<f32>>,
     start_frame: Option<usize>,
     end_frame: Option<usize>,
+    lufs_gain: f32,
 ) -> Result<Stream, AudioError> {
     let start = Instant::now();
     let device_name = device.name().unwrap_or_else(|_| "Unknown".to_string());
@@ -72,6 +79,15 @@ pub fn create_playback_stream(
         );
     }
 
+    // Log LUFS gain if applied
+    if (lufs_gain - 1.0).abs() > 0.001 {
+        debug!(
+            lufs_gain = format!("{:.3}", lufs_gain),
+            lufs_gain_db = format!("{:.1}", 20.0 * lufs_gain.log10()),
+            "LUFS normalization active"
+        );
+    }
+
     // Try to build stream with low-latency config, fallback to default if it fails
     let (stream, used_buffer_size) = build_stream_with_fallback(
         device,
@@ -84,6 +100,7 @@ pub fn create_playback_stream(
         end_frame_arc,
         channels,
         rate_ratio,
+        lufs_gain,
     )?;
 
     stream
@@ -125,6 +142,7 @@ const FALLBACK_BUFFER_SIZES: [u32; 3] = [256, 512, 1024];
 /// * `end_frame` - End frame for trimmed playback
 /// * `channels` - Number of output channels
 /// * `rate_ratio` - Sample rate conversion ratio
+/// * `lufs_gain` - LUFS normalization gain multiplier (1.0 = no change)
 ///
 /// # Returns
 ///
@@ -147,6 +165,7 @@ fn build_stream_with_fallback(
     end_frame: Arc<usize>,
     channels: usize,
     rate_ratio: f64,
+    lufs_gain: f32,
 ) -> Result<(Stream, String), AudioError> {
     // Try each buffer size in order
     for &buffer_size in &FALLBACK_BUFFER_SIZES {
@@ -166,6 +185,7 @@ fn build_stream_with_fallback(
             end_frame.clone(),
             channels,
             rate_ratio,
+            lufs_gain,
         ) {
             Ok(stream) => {
                 if buffer_size != PREFERRED_BUFFER_SIZE {
@@ -200,6 +220,7 @@ fn build_stream_with_fallback(
         end_frame,
         channels,
         rate_ratio,
+        lufs_gain,
     )?;
 
     Ok((stream, "Default".to_string()))
@@ -222,6 +243,7 @@ fn build_stream_with_fallback(
 /// * `end_frame` - End frame for trimmed playback
 /// * `channels` - Number of output channels
 /// * `rate_ratio` - Sample rate conversion ratio
+/// * `lufs_gain` - LUFS normalization gain multiplier (1.0 = no change)
 ///
 /// # Returns
 ///
@@ -234,6 +256,7 @@ fn build_stream_with_fallback(
 /// The audio callback performs:
 /// - Linear interpolation for sample rate conversion
 /// - Volume scaling with square root curve
+/// - LUFS normalization gain application
 /// - Multi-channel mapping (silences extra output channels)
 #[allow(clippy::too_many_arguments)]
 fn try_build_stream(
@@ -246,6 +269,7 @@ fn try_build_stream(
     end_frame: Arc<usize>,
     channels: usize,
     rate_ratio: f64,
+    lufs_gain: f32,
 ) -> Result<Stream, AudioError> {
     trace!(
         sample_format = ?sample_format,
@@ -269,6 +293,7 @@ fn try_build_stream(
                         channels,
                         rate_ratio,
                         *end_frame,
+                        lufs_gain,
                     );
                 },
                 |err| error!("Stream error: {}", err),
@@ -288,6 +313,7 @@ fn try_build_stream(
                         channels,
                         rate_ratio,
                         *end_frame,
+                        lufs_gain,
                     );
                 },
                 |err| error!("Stream error: {}", err),
@@ -307,6 +333,7 @@ fn try_build_stream(
                         channels,
                         rate_ratio,
                         *end_frame,
+                        lufs_gain,
                     );
                 },
                 |err| error!("Stream error: {}", err),
@@ -329,6 +356,7 @@ fn write_audio_f32(
     output_channels: usize,
     rate_ratio: f64,
     end_frame: usize,
+    lufs_gain: f32,
 ) {
     let mut index = sample_index.lock().unwrap();
     let input_channels = audio_data.channels as usize;
@@ -336,7 +364,8 @@ fn write_audio_f32(
 
     // Apply square root volume curve with base attenuation
     // Base multiplier of 0.2 for safe default volume (20% of full amplitude)
-    let scaled_volume = volume.sqrt() * 0.2;
+    // LUFS gain is applied multiplicatively for loudness normalization
+    let scaled_volume = volume.sqrt() * 0.2 * lufs_gain;
 
     for frame in output.chunks_mut(output_channels) {
         if *index >= max_frame - 1.0 {
@@ -388,6 +417,7 @@ fn write_audio_i16(
     output_channels: usize,
     rate_ratio: f64,
     end_frame: usize,
+    lufs_gain: f32,
 ) {
     let mut index = sample_index.lock().unwrap();
     let input_channels = audio_data.channels as usize;
@@ -395,7 +425,8 @@ fn write_audio_i16(
 
     // Apply square root volume curve with base attenuation
     // Base multiplier of 0.2 for safe default volume (20% of full amplitude)
-    let scaled_volume = volume.sqrt() * 0.2;
+    // LUFS gain is applied multiplicatively for loudness normalization
+    let scaled_volume = volume.sqrt() * 0.2 * lufs_gain;
 
     for frame in output.chunks_mut(output_channels) {
         if *index >= max_frame - 1.0 {
@@ -447,6 +478,7 @@ fn write_audio_u16(
     output_channels: usize,
     rate_ratio: f64,
     end_frame: usize,
+    lufs_gain: f32,
 ) {
     let mut index = sample_index.lock().unwrap();
     let input_channels = audio_data.channels as usize;
@@ -454,7 +486,8 @@ fn write_audio_u16(
 
     // Apply square root volume curve with base attenuation
     // Base multiplier of 0.2 for safe default volume (20% of full amplitude)
-    let scaled_volume = volume.sqrt() * 0.2;
+    // LUFS gain is applied multiplicatively for loudness normalization
+    let scaled_volume = volume.sqrt() * 0.2 * lufs_gain;
 
     for frame in output.chunks_mut(output_channels) {
         if *index >= max_frame - 1.0 {
@@ -538,7 +571,7 @@ pub(crate) fn db_to_linear(db: f32) -> f32 {
 /// # Returns
 /// Linear gain multiplier (1.0 = no change)
 #[inline]
-pub(crate) fn calculate_lufs_gain(sound_lufs: Option<f32>, target_lufs: f32, enabled: bool) -> f32 {
+pub fn calculate_lufs_gain(sound_lufs: Option<f32>, target_lufs: f32, enabled: bool) -> f32 {
     if !enabled {
         return 1.0;
     }

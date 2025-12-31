@@ -14,7 +14,7 @@ pub use cache::CacheStats;
 pub use device::enumerate_devices;
 pub use error::AudioError;
 pub use manager::{AudioManager, SoundState};
-pub use playback::create_playback_stream;
+pub use playback::{calculate_lufs_gain, create_playback_stream};
 pub use waveform::{generate_peaks, WaveformData};
 
 use serde::{Deserialize, Serialize};
