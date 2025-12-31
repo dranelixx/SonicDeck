@@ -1,0 +1,52 @@
+{
+  "enabledPlugins": {
+    "context7@claude-plugins-official": true
+  },
+  "permissions": {
+    "allow": [
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "mcp__triliumnext-mcp__search_notes",
+      "mcp__triliumnext-mcp__resolve_note_id",
+      "mcp__triliumnext-mcp__get_note",
+      "mcp__triliumnext-mcp__create_note,",
+      "mcp__triliumnext-mcp__update_note",
+      "Bash(yarn add:*)",
+      "Bash(yarn tauri build:*)",
+      "Bash(yarn typecheck:*)",
+      "Bash(cargo check:*)",
+      "Bash(yarn lint:*)",
+      "WebFetch(domain:github.com)",
+      "mcp__triliumnext-mcp__create_note",
+      "WebSearch",
+      "mcp__triliumnext-mcp__manage_attributes",
+      "mcp__triliumnext-mcp__search_and_replace_note",
+      "Bash(node scripts/sync-version.js:*)",
+      "Bash(gh issue create:*)",
+      "Bash(gh project item-add:*)",
+      "mcp__plugin_context7_context7__resolve-library-id",
+      "mcp__plugin_context7_context7__get-library-docs",
+      "Bash(node:*)",
+      "mcp__triliumnext-mcp__read_attributes",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh issue view:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(cargo test:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(git checkout:*)",
+      "Bash(yarn test:run:*)",
+      "Bash(cargo llvm-cov:*)",
+      "Bash(yarn test:coverage:*)",
+      "WebFetch(domain:vb-audio.com)",
+      "WebFetch(domain:forum.vb-audio.com)",
+      "mcp__plugin_context7_context7__query-docs",
+      "WebFetch(domain:gist.github.com)",
+      "Bash(mv:*)",
+      "Bash(cat:*)",
+      "Bash(ls:*)"
+    ]
+  }
+}
