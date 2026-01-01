@@ -5,11 +5,11 @@
 Designed for gamers, streamers, and content creators who need professional audio routing with minimal latency. SonicDeck features a sleek, Discord-inspired dark theme and powerful audio management tools.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-0.8.0--alpha-orange)](https://github.com/DraneLixX/SonicDeck/releases)
+[![Version](https://img.shields.io/github/v/release/DraneLixX/SonicDeck?include_prereleases&label=version&color=orange)](https://github.com/DraneLixX/SonicDeck/releases)
 [![Platform](https://img.shields.io/badge/platform-Windows-blue)](https://github.com/DraneLixX/SonicDeck)
 [![Coverage](https://codecov.io/gh/dranelixx/SonicDeck/branch/main/graph/badge.svg)](https://codecov.io/gh/dranelixx/SonicDeck)
 
-> **Status:** Currently in beta testing - [Download Latest Release](https://github.com/DraneLixX/SonicDeck/releases)
+> **Status:** Currently in alpha testing - [Download Latest Release](https://github.com/DraneLixX/SonicDeck/releases)
 
 ---
 
@@ -126,7 +126,7 @@ Play sounds to two separate audio devices simultaneously (e.g., headphones + vir
 - ✅ **Phase 3**: Sound Library Management (Categories, favorites, drag & drop)
 - ✅ **Phase 4**: Audio Caching, Waveform Visualization & Trim Editor
 - ✅ **Phase 5**: System Integration (Global hotkeys, system tray, autostart)
-- 🚀 **Current**: Beta testing, bug fixes, polish, and community feedback
+- 🚀 **Current**: Alpha testing, bug fixes, polish, and community feedback
 
 ### Planned Features
 - **Auto-Updater** – Seamless updates without manual reinstallation
@@ -137,7 +137,7 @@ Play sounds to two separate audio devices simultaneously (e.g., headphones + vir
 - **Mobile Web-Remote** – Control via smartphone browser (no app install needed)
 - **Game-Aware Profiles** – Auto-switch profiles per game
 
-## 🐛 Beta Testing & Logging
+## 🐛 Alpha Testing & Logging
 
 **Log Files for Bug Reports:**
 - Location: `%LOCALAPPDATA%\com.sonicdeck.app\logs\`
@@ -179,7 +179,7 @@ If you're passionate about design and want to contribute to an open-source proje
 
 ## 📥 Installation (For Users)
 
-> **Note**: SonicDeck is currently in **beta testing**. Download the latest release and help us improve!
+> **Note**: SonicDeck is currently in **alpha testing**. Download the latest release and help us improve!
 
 ### Windows Installation
 
@@ -244,7 +244,7 @@ Contributions are welcome! Whether you're fixing bugs, adding features, testing,
 
 **Ways to contribute:**
 - 🐛 Report bugs with detailed logs
-- 🧪 Beta test and provide feedback
+- 🧪 Alpha test and provide feedback
 - 🎨 Create visual assets (we're looking for an artist!)
 - 💻 Submit code improvements
 - 📝 Improve documentation
