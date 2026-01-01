@@ -20,11 +20,11 @@
 ## Current Position
 
 Phase: 4 of 6 (Auto-Updater)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-01-01 - Completed 04-02-PLAN.md
+Plan: 3 of 3 in current phase
+Status: Phase complete
+Last activity: 2026-01-01 - Completed 04-03-PLAN.md
 
-Progress: ██████░░░░ 60% (Phase 04: 2/3)
+Progress: ███████░░░ 67% (Phase 04: Complete)
 
 ## Performance Metrics
 
@@ -57,6 +57,8 @@ Progress: ██████░░░░ 60% (Phase 04: 2/3)
 | 2 | Donationware notice always visible | VB-Audio license requires notice when distributing |
 | 2 | cpal for microphone routing | Avoids complex Windows "Listen to this device" registry manipulation |
 | 2 | Manual disable guide instead of auto-disable | SetupAPI requires admin rights - unacceptable UX |
+| 4 | Password-protected signing key | Best practice for defense in depth |
+| 4 | NSIS-only builds (no MSI) | MSI is for enterprise, NSIS supports auto-updates natively |
 
 ### Deferred Issues
 
@@ -82,5 +84,5 @@ Drift notes: None
 ## Session Continuity
 
 Last session: 2026-01-01
-Stopped at: Completed 04-02-PLAN.md - ready for 04-03 (CI/CD and Signing)
+Stopped at: Completed 04-03-PLAN.md - Phase 4 complete, ready for Phase 5 (Import/Export)
 Resume file: None

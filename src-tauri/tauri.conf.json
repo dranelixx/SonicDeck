@@ -33,7 +33,9 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": [
+      "nsis"
+    ],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -45,7 +47,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "PLACEHOLDER_PUBKEY",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEZENDgxNDA2NUNBMkNBQ0EKUldUS3lxSmNCaFJJL1hpUWZmaE5yZXBIajdmV2Vhb09xSE5DNmRsd1dYdmR0bSt5M3dhRlRIQVcK",
       "endpoints": [
         "https://github.com/DraneLixX/SonicDeck/releases/latest/download/latest.json"
       ],

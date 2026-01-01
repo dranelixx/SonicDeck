@@ -1,5 +1,6 @@
 # Tauri / Rust
 /src-tauri/target
+.tauri/
 
 # CI/CD artifacts
 *.msi
