@@ -3,7 +3,7 @@ name: Claude Code Review
 on:
   pull_request:
     branches: [main]
-    types: [opened, synchronize]
+    types: [opened]  # Only on PR creation, not on every push (use @claude for manual reviews)
     # Optional: Only run on specific file changes
     # paths:
     #   - "src/**/*.ts"

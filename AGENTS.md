@@ -10,7 +10,7 @@ SonicDeck is a high-performance desktop soundboard application built with:
 
 - **Frontend**: React 19.2.3 + TypeScript 5.3.3 + Vite 7.3.0 + TailwindCSS 4.1.18
 - **Backend**: Tauri v2 + Rust (cpal + symphonia for audio)
-- **Key Features**: Dual-audio routing, sound library management, waveform visualization, audio trimming
+- **Key Features**: Dual-audio routing, LUFS normalization, VB-Cable/Discord integration, sound library management, waveform visualization, audio trimming, auto-updates
 
 ### Tech Stack
 
@@ -24,9 +24,10 @@ SonicDeck is a high-performance desktop soundboard application built with:
 #### Backend (Rust 2021)
 
 - **Core**: Tauri 2.0, serde (serialization)
-- **Audio**: cpal (I/O), symphonia (decoding: MP3, OGG/Vorbis, M4A/AAC via isomp4)
+- **Audio**: cpal (I/O), symphonia (decoding: MP3, OGG/Vorbis, M4A/AAC via isomp4), ebur128 (LUFS normalization)
+- **VB-Cable**: com-policy-config (Windows audio API), reqwest (installer download), zip (extraction)
 - **Logging**: tracing, tracing-subscriber, tracing-appender
-- **Plugins**: tauri-plugin-dialog, tauri-plugin-shell, tauri-plugin-global-shortcut, tauri-plugin-autostart
+- **Plugins**: tauri-plugin-dialog, tauri-plugin-shell, tauri-plugin-fs, tauri-plugin-global-shortcut, tauri-plugin-autostart, tauri-plugin-updater, tauri-plugin-process
 
 ---
 
@@ -64,10 +65,23 @@ SonicDeck is a high-performance desktop soundboard application built with:
   - `chore:` - Maintenance
   - `test:` - Tests
 
+- **Commit Scopes** (optional but recommended):
+  | Scope | Bereich |
+  |-------|---------|
+  | `audio` | Rust Audio-Engine, Playback, Decoding, Devices, Cache, Waveform |
+  | `ui` | React-Komponenten, Styling, Modals, System Tray |
+  | `sounds` | Sound-Library, Kategorien, Import/Export |
+  | `settings` | App-Einstellungen, Persistence |
+  | `hotkeys` | Globale Shortcuts |
+  | `ci` | GitHub Actions, Workflows |
+  | `build` | Tauri-Config, Cargo.toml, package.json, Version-Sync |
+  | `deps` | Dependency-Updates |
+  | `docs` | Dokumentation (README, AGENTS.md, CLAUDE.md) |
+
 - **Commit Message Format** (Problem/Solution structure):
 
   ```
-  fix: short description
+  fix(audio): short description
 
   Problem:
   - bullet point
@@ -155,8 +169,8 @@ SonicDeck is a high-performance desktop soundboard application built with:
 
 **Single Source of Truth**: `version.json` (root directory)
 
-**Key Concept**: SonicDeck uses a **dual-version system** for MSI compatibility:
-- **Build Version**: Numeric format (e.g., `0.7.0-0`) for MSI installers
+**Key Concept**: SonicDeck uses a **dual-version system** for installer compatibility:
+- **Build Version**: Numeric format (e.g., `0.7.0-0`) for NSIS installers (supports auto-updates)
 - **Display Version**: User-friendly format (e.g., `v0.7.0-alpha`) composed from `version` + `channel` fields
 
 **Version Mapping**: `-0` = alpha, `-1` = beta, `-2` = rc, no suffix = stable
@@ -197,10 +211,12 @@ SonicDeck is a high-performance desktop soundboard application built with:
 ### Audio System
 
 - **Dual Output**: Simultaneous playback to primary + secondary devices
+- **LUFS Normalization**: EBU R 128 loudness normalization (optional, configurable target)
+- **VB-Cable Integration**: Discord audio routing with microphone passthrough
 - **Caching**: LRU cache (500MB) for decoded audio + waveform data
 - **Trim System**: Non-destructive - stores trim points, applies during playback
 - **Threading**: Each playback runs in dedicated thread (parallel playback)
-- **Pipeline**: File → Symphonia decode → Cache → cpal stream → Dual output
+- **Pipeline**: File → Symphonia decode → LUFS calc → Cache → cpal stream → Dual output
 
 ### File Structure
 
@@ -213,11 +229,11 @@ src/
 │   ├── categories/    # CategoryTabs
 │   ├── common/        # ErrorBoundary, Toast, EmojiPicker
 │   ├── dashboard/     # Dashboard, DashboardHeader, DashboardSoundGrid, SoundButton
-│   ├── modals/        # HotkeyManager, SoundModal, TrimEditor
+│   ├── modals/        # HotkeyManager, SoundModal, TrimEditor, UpdateModal
 │   └── settings/      # Settings, AudioDeviceSettings, PlaybackSettings,
-│                      # SystemTraySettings, SettingsAbout
+│                      # SystemTraySettings, SettingsAbout, VbCableSettings
 ├── contexts/          # AudioContext, SettingsContext, SoundLibraryContext
-├── hooks/             # useAudioPlayback, useFileDrop, useHotkeyMappings
+├── hooks/             # useAudioPlayback, useFileDrop, useHotkeyMappings, useUpdateCheck
 ├── utils/             # hotkeyDisplay, waveformQueue
 ├── App.tsx            # Root component (Context provider wrapper)
 ├── main.tsx           # Entry point
@@ -247,9 +263,12 @@ src-tauri/src/
 ├── lib.rs             # App setup and command registration
 ├── main.rs            # App entry point
 ├── hotkeys.rs         # Global hotkey management
+├── persistence.rs     # Atomic file operations
 ├── settings.rs        # Settings persistence
 ├── sounds.rs          # Sound library management
-└── tray.rs            # System tray
+├── state.rs           # App state management
+├── tray.rs            # System tray
+└── vbcable/           # VB-Cable integration module
 ```
 
 #### Configuration
@@ -471,6 +490,12 @@ yarn test:coverage  # With coverage
 **Unit Tests** (Vitest + Testing Library):
 - `src/utils/hotkeyDisplay.test.ts` - Hotkey formatting and parsing
 - `src/utils/waveformQueue.test.ts` - Waveform queue logic with mocked Tauri invoke
+- `src/hooks/useAudioPlayback.test.ts` - Audio playback hook logic
+- `src/hooks/useFileDrop.test.ts` - File drop handling
+- `src/hooks/useHotkeyMappings.test.ts` - Hotkey mappings management
+- `src/hooks/useUpdateCheck.test.ts` - Auto-updater hook (11 tests)
+- `src/components/modals/UpdateModal.test.tsx` - Update modal UI (21 tests)
+- `src/components/settings/VbCableSettings.test.tsx` - VB-Cable integration UI (27 tests)
 
 **Test Setup** (`src/test/setup.ts`):
 - Mocks for Tauri API (`@tauri-apps/api/core`, `@tauri-apps/api/event`)
