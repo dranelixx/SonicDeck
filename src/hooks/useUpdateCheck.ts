@@ -68,12 +68,12 @@ export function useUpdateCheck(): UseUpdateCheckReturn {
         checking: false,
       }));
     } catch (error) {
-      // Silent fail for auto-check, but store error for manual check feedback
+      // Silent fail - don't show error to user for failed checks
       console.warn("Update check failed:", error);
       setState((prev) => ({
         ...prev,
         checking: false,
-        error: null, // Don't show error for failed checks during development
+        error: null,
       }));
     }
   }, []);

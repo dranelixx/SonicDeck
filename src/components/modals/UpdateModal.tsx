@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { UseUpdateCheckReturn } from "../../hooks/useUpdateCheck";
 
 interface UpdateModalProps {
@@ -15,6 +16,9 @@ export default function UpdateModal({
   onClose,
   updateState,
 }: UpdateModalProps) {
+  // Guard against double-click race condition (must be before early return)
+  const isInstalling = useRef(false);
+
   if (!isOpen || !updateState.available) return null;
 
   const { available, downloading, progress, error, installUpdate } =
@@ -68,6 +72,8 @@ export default function UpdateModal({
   };
 
   const handleInstall = async () => {
+    if (isInstalling.current) return;
+    isInstalling.current = true;
     await installUpdate();
   };
 
