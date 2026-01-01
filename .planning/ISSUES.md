@@ -99,6 +99,8 @@ Users cannot see if audio is actually flowing through the microphone routing.
 **Priority:** Medium
 **Type:** Enhancement
 **Target:** v1.0-Beta
+**Suggested phase:** Phase 6 (UI/UX Polish)
+**Include in Phase 6:** ✅ Confirmed - etabliertes AudioError-Muster in `src-tauri/src/audio/error.rs` vorhanden
 
 **Description:**
 VB-Cable module uses `String` errors in many places. This makes error handling less precise and pattern matching difficult.
@@ -166,6 +168,43 @@ When developing frontend using Vite standalone (VSCode Vite extension), Tauri ba
 
 ---
 
+### ISS-011: Consolidate VB-Cable routing state management
+**GitHub:** [#90](https://github.com/dranelixx/SonicDeck/issues/90)
+**Discovered:** Code Review PR #89
+**Priority:** Low
+**Type:** Refactoring
+**Include in Phase 6:** ✅ Confirmed - UI/UX Polish passt ideal
+
+**Description:**
+VbCableSettings.tsx tracks microphone routing state in both local React state and Settings context. This dual source of truth can lead to sync issues.
+
+**Proposed solution:**
+- Derive `selectedMicrophone` and `isRoutingActive` from settings context as single source of truth
+- Or clearly document why both are needed
+
+**Files:** `src/components/settings/VbCableSettings.tsx`
+
+---
+
+### ISS-012: RAII wrapper for Windows handles
+**GitHub:** [#96](https://github.com/dranelixx/SonicDeck/issues/96)
+**Discovered:** Code Review PR #92
+**Priority:** Low
+**Type:** Refactoring
+**Include in Phase 6:** ✅ Confirmed - Code-Quality mit ISS-007 kombinierbar
+
+**Description:**
+Windows handles (process handles, COM objects) are manually managed. RAII wrappers would ensure automatic cleanup and prevent resource leaks.
+
+**Proposed solution:**
+- Create `SafeHandle` wrapper struct with `Drop` trait
+- Automatic cleanup even on panic
+- Follows Rust idioms (RAII pattern)
+
+**Files:** `src-tauri/src/vbcable/installer.rs`, `src-tauri/src/vbcable/default_device.rs`
+
+---
+
 ## Resolved Issues
 
 ### ISS-002: Microphone routing latency optimization ✓
@@ -178,4 +217,5 @@ When developing frontend using Vite standalone (VSCode Vite extension), Tauri ba
 
 ---
 
-*Last updated: 2025-12-31*
+*Last updated: 2026-01-01*
+*Last reviewed: 2026-01-01 - 3 Issues für Phase 6 markiert (ISS-007, ISS-011, ISS-012)*

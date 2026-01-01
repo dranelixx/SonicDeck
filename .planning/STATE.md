@@ -61,9 +61,12 @@ Progress: ██████████ 100% (Phase 03)
 ### Deferred Issues
 
 - #82: Mic routing sample rate mismatch (no resampling)
-- #83: Mic routing latency (1s buffer, could be 50-100ms)
 - #84: Mic routing buffer sync (simple ring buffer)
 - #88: VB-Cable uninstall option in SonicDeck uninstaller
+- #90: Consolidate VB-Cable routing state management
+- #96: RAII wrapper for Windows handles
+
+See `.planning/ISSUES.md` for full list (12 open issues)
 
 ### Blockers/Concerns Carried Forward
 
